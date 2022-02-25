@@ -1,0 +1,49 @@
+:root {
+  --main-bg-color: #002E2C;
+  --main-text: #E3E7AF;
+}
+body {
+  background-color: var(--main-bg-color);
+  color: var(--main-text);
+}
+#header {
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid var(--main-text);
+}
+#Main {
+  width: 100%;
+  height: calc(100vh - 80px);
+  display: flex;
+}
+#Phrases,
+#Phrase {
+  display: inline-block;
+  margin: 0px;
+  padding: 0px;
+}
+#Phrases {
+  width: 25%;
+  border-Right: 1px solid var(--main-text);
+  flex-grow: 1;
+  resize: horizontal;
+  overflow: auto;
+}
+#Phrase {
+  max-width: 75%;
+  min-width: 50%;
+  flex-grow: 3;
+}
+#Search {
+  width: 75%;
+  float: right;
+  margin-bottom: 10px;
+}
+#Phrase_List {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+}
+#Phrase_List li {
+  list-style-type: none;
+}

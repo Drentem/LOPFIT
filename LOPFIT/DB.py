@@ -1,22 +1,35 @@
-from sqlalchemy import Column, Integer, String, BLOB, create_engine
-from sqlalchemy.ext.declarative import declarative_base
-# import os
-
-dbfile = 'sqlite:///pyPhraseExpander.db'
-# dbfile = 'sqlite:////' + str(os.path.join(
-#     os.path.expanduser("~/Documents"), "pyPhraseExpander.db"))
-print(dbfile)
-engine = create_engine(dbfile)
-Base = declarative_base()
+from LOPFIT.ext import db
 
 
-class Phrases(Base):
+class Common():
+    @classmethod
+    def query_all(cls):
+        return cls.query.all()
+
+    @classmethod
+    def query_id(cls, id):
+        return cls.query.filter(cls.id == id).one()
+
+    def __repr__(self):
+        return '<%r>' % self.id
+
+
+class Phrases(db.Model):
     __tablename__ = 'phrases'
-    id = Column(Integer, primary_key=True)
-    cmd = Column(String(length=255), nullable=False)
-    name = Column(String(length=255), nullable=False)
-    phrase = Column("phrase", BLOB, nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    cmd = db.Column(db.String(length=255), nullable=False)
+    name = db.Column(db.String(length=255), nullable=False)
+    phrase = db.Column(db.BLOB, nullable=False)
     sqlite_autoincrement = True
+
+    @classmethod
+    def get_phrase_list(cls):
+        query = cls.query.all()
+        cmds = []
+        for item in query:
+            i = item.id, item.name
+            cmds.append(i)
+        return cmds
 
     @classmethod
     def get_cmds(cls):
@@ -44,16 +57,19 @@ class Phrases(Base):
 
     @classmethod
     def add(cls, data):
-        engine.add(cls(
+        db.session.add(cls(
             cmd=data['cmd'],
             name=data['name'],
             phrase=data['phrase']
         ))
-        engine.commit()
+        db.session.commit()
         return True
 
     @classmethod
     def remove(cls, id):
+        query = cls.query.filter(cls.id == id).one()
+        db.session.delete(query)
+        db.session.commit()
         return True
 
     @classmethod
@@ -62,8 +78,5 @@ class Phrases(Base):
         phrase.cmd = data['cmd']
         phrase.name = data['name']
         phrase.phrase = data['phrase']
-        engine.commit()
+        db.session.commit()
         return True
-
-
-Base.metadata.create_all(engine)
