@@ -1,10 +1,18 @@
 :root {
-  --main-bg-color: #002E2C;
+  /* Main App */
+  --main-bg: #002E2C;
   --main-text: #E3E7AF;
+
+  /*Phrase Editor*/
+  --editor-toolbar-bg: #035E7B;
+  --editor-toolbar-text: #E3E7Af;
+  --editor-bg: #A2A77F;
+  --editor-text: black;
 }
 body {
-  background-color: var(--main-bg-color);
+  background-color: var(--main-bg);
   color: var(--main-text);
+  overflow: hidden;
 }
 #header {
   width: 100%;
@@ -46,4 +54,31 @@ body {
 }
 #Phrase_List li {
   list-style-type: none;
+}
+
+/*--- Phrase Editor ---*/
+#Phrase_Header,
+#Phrase_Name,
+#Phrase_Trigger {
+  padding-bottom: 5px;
+}
+#Phrase_Name input,
+#Phrase_Trigger input {
+  float:right;
+  width:75%;
+}
+.ql-toolbar,
+.ql-picker-label {
+  background-color: var(--editor-toolbar-bg);
+  color: var(--editor-toolbar-text);
+}
+.ql-stroke,
+.ql-fill {
+  stroke: var(--editor-toolbar-text) !important;
+}
+.ql-editor {
+  background-color: var(--editor-bg);
+  color: var(--editor-text);
+  height: calc(100vh - 110px) !important;
+  overflow-y: auto;
 }

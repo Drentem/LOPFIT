@@ -2,16 +2,31 @@
 <html>
   <head>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-    <script src="{{ url_for('static', filename='ops.js') }}"></script>
+    <link href="{{ url_for('static', filename='quill/quill.snow.css') }}" rel="stylesheet" />
+    <script src="{{ url_for('static', filename='quill/quill.js') }}"></script>
   </head>
   <body>
-    <form id="Phrase_Header">
-      <div id="Phrase_Name">Name:<input type="text" id="pname" name="pname"></div>
-      <div id="Phrase_"
-
-
-        <li><a href="{{url_for('phrase',ID=phrase.id)}}" target="Phrase">{{phrase.name}}</a>
-      {% endfor %}
-    </ul>
+    <form>
+      <div id="Phrase_Header">
+        <div id="Phrase_Name">Name:<input type="text" id="pname" name="pname"></div>
+        <div id="Phrase_Trigger">Trigger Phrase:<input type="text" id="ptrigger" name="ptrigger"></div>
+      </div>
+      <div id="toolbar"></div>
+      <div id="Phrase_Text"></div>
+    </form>
+    <script>
+    var options = {
+        debug: 'info',
+        modules: {
+          toolbar: '#toolbar'
+        },
+        placeholder: 'Compose an epic...',
+        readOnly: true,
+        theme: 'bubble'
+      };
+      var quill = new Quill('#Phrase_Text', {
+        theme: 'snow'   // Specify theme in configuration
+      });
+    </script>
   </body>
 </html>

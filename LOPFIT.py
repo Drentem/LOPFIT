@@ -1,4 +1,4 @@
-from pyPhraseExpander import create_app
+from LOPFIT import create_app
 
 app = create_app()
 
