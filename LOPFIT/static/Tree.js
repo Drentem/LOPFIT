@@ -83,8 +83,7 @@ Tree.prototype.init = function () {
   findTreeitems(this.domNode, this, false);
 
   this.updateVisibleTreeitems();
-
-  this.firstTreeitem.domNode.tabIndex = 0;
+  if (this.firstTreeitem) {this.firstTreeitem.domNode.tabIndex = 0;}
 };
 
 Tree.prototype.setFocusToItem = function (treeitem) {

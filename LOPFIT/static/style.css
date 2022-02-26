@@ -119,12 +119,20 @@ ul[role="tree"] li span {width:100%}
   width:75%;
 }
 .ql-toolbar,
-.ql-picker-label {
+.ql-picker-label,
+.ql-picker-label:before {
   background-color: var(--editor-toolbar-bg);
   color: var(--editor-toolbar-text);
 }
-.ql-stroke,
-.ql-fill {
+.ql-toolbar.ql-snow .ql-formats:first-child{
+  display: none;
+  margin: 0px;
+}
+.ql-snow .ql-fill,
+.ql-snow .ql-stroke.ql-fill {
+  fill: var(--editor-toolbar-text) !important;
+}
+.ql-snow .ql-stroke {
   stroke: var(--editor-toolbar-text) !important;
 }
 .ql-editor {
