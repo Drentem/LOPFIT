@@ -3,14 +3,53 @@
   <head>
     <title>LOPFIT</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='fontawesome-6/fontawesome.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='fontawesome-6/regular.min.css') }}" />
+    <link href="{{ url_for('static', filename='quill/quill.snow.css') }}" rel="stylesheet" />
+    <script src="{{ url_for('static', filename='quill/quill.js') }}"></script>
+    <script src="{{ url_for('static', filename='Tree.js') }}"></script>
   </head>
   <body>
     <div id="header">
       <h1>Lots Of Phrases Fit In This</h1>
     </div>
     <div id="Main">
-      <iframe src="{{ url_for('phrases') }}" id="Phrases" name="Phrases"></iframe>
-      <iframe src="{{ url_for('phrase_new') }}" id="Phrase" name="Phrase"></iframe>
+      <div id="Phrases" name="Phrases">
+        <div id="Phrases-Toolbar"></div>
+        <ul id="Phrase_List" role="tree" aria-labelledby="tree_label">
+          {{phrase_list|safe}}
+        </ul>
+      </div>
+      <form id="Phrase">
+        <div id="Phrase_Header">
+          <div id="Phrase-Toolbar"></div>
+          <div id="Phrase_Name">Name:<input type="text" id="pname" name="pname"></div>
+          <div id="Phrase_Trigger">Trigger Phrase:<input type="text" id="ptrigger" name="ptrigger"></div>
+          <div id="Phrase_Folder">Folder:
+            <select id="pfolder" name="pfolder">
+              {% for folder in folders %}
+                <option value={{folder['id']}}>{{folder['name']|safe}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div id="Phrase_Text"></div>
+      </form>
+      <script>
+      var options = {
+          debug: 'info',
+          modules: {
+            toolbar: '#toolbar'
+          },
+          placeholder: 'Compose an epic...',
+          readOnly: true,
+          theme: 'bubble'
+        };
+        var quill = new Quill('#Phrase_Text', {
+          theme: 'snow'   // Specify theme in configuration
+        });
+      </script>
+    </body>
     </div>
   </body>
 </html>

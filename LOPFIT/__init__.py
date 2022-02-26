@@ -9,7 +9,7 @@ except Exception:
     from flask import Flask, render_template
 finally:
     from LOPFIT.daKeyboards import KB
-    from LOPFIT.DB import Phrases, db
+    from LOPFIT.DB import Phrases, Folders, db
 
     dbfile = 'sqlite:///LOPFIT.db'
     # dbfile = 'sqlite:////' + str(os.path.join(
@@ -25,19 +25,27 @@ finally:
 
         @app.route('/')
         def index():
-            return render_template('index.html.j2')
+            phrase_folders = Folders.get_folders_select()
+            phrase_list = Phrases.get_phrase_list_html()
+            return render_template('index.html.j2',
+                                   folders=phrase_folders,
+                                   phrase_list=phrase_list)
 
-        @app.route('/phrases')
+        @ app.route('/phrases')
         def phrases():
             phrase_list = Phrases.get_phrase_list()
             return render_template('phrases.html.j2',
                                    phrases=phrase_list)
 
-        @app.route('/phrase')
+        @ app.route('/phrase/', methods=["POST"])
         def phrase_new():
+            data = {
+                "cmd": ""
+            }
+            Phrases.add(data)
             return render_template('phrase.html.j2')
 
-        @app.route('/phrase/<ID>')
+        @ app.route('/phrase/<ID>')
         def phrase_edit(ID):
             return render_template('phrases.html.j2')
 

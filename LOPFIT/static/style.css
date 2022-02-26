@@ -3,6 +3,10 @@
   --main-bg: #002E2C;
   --main-text: #E3E7AF;
 
+  /* Phrase List */
+  --phrases-bg: #A2A77F;
+  --phrases-text: black;
+
   /*Phrase Editor*/
   --editor-toolbar-bg: #035E7B;
   --editor-toolbar-text: #E3E7Af;
@@ -12,7 +16,8 @@
 body {
   background-color: var(--main-bg);
   color: var(--main-text);
-  overflow: hidden;
+  overflow: auto;
+  margin:0;
 }
 #header {
   width: 100%;
@@ -21,7 +26,7 @@ body {
 }
 #Main {
   width: 100%;
-  height: calc(100vh - 80px);
+  height: calc(100vh - 81px);
   display: flex;
 }
 #Phrases,
@@ -31,54 +36,111 @@ body {
   padding: 0px;
 }
 #Phrases {
-  width: 25%;
+  width: 10%;
   border-Right: 1px solid var(--main-text);
   flex-grow: 1;
-  resize: horizontal;
+  resize: none;
   overflow: auto;
+  background-color: var(--phrases-bg);
+  color: var(--phrases-text);
 }
 #Phrase {
-  max-width: 75%;
+  max-width: 95%;
   min-width: 50%;
   flex-grow: 3;
 }
-#Search {
-  width: 75%;
-  float: right;
-  margin-bottom: 10px;
+#Phrase_Header{
+  padding: 10px;
 }
-#Phrase_List {
-  width: 100%;
-  height: 100%;
-  overflow: auto;
+
+/*--- Phrase List ---*/
+ul[role="tree"] {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: calc(100% - 30px);
 }
-#Phrase_List li {
-  list-style-type: none;
+ul[role="tree"] li {width: 100%;}
+ul[role="tree"] li span {width:100%}
+[role="group"] {padding-inline-start: 20px;}
+[role="treeitem"].doc::before {
+  font-family: "Font Awesome 6 Free";
+  content: "\f15c";
+  display: inline-block;
+  padding-right: 2px;
+  padding-left: 5px;
+  vertical-align: middle;
 }
+[role="treeitem"][aria-expanded="false"] > ul {display: none;}
+[role="treeitem"][aria-expanded="true"] > ul {display: block;}
+[role="treeitem"][aria-expanded="false"] > span::before {
+  font-family: "Font Awesome 6 Free";
+  content: "\f07b";
+  display: inline-block;
+  padding-right: 3px;
+  vertical-align: middle;
+  font-weight: 900;
+}
+[role="treeitem"][aria-expanded="true"] > span::before {
+  font-family: "Font Awesome 6 Free";
+  content: "\f07c";
+  display: inline-block;
+  padding-right: 3px;
+  vertical-align: middle;
+  font-weight: 900;
+}
+[role="treeitem"],
+[role="treeitem"] span {
+  width: 9em;
+  margin: 0;
+  padding: 0.1em;
+  display: block;
+}
+[role="treeitem"]:focus {outline: 0;}
+[role="treeitem"].focus,
+[role="treeitem"] span.focus {
+  border-color: black;
+  background-color: #eee;
+}
+[role="treeitem"].hover,
+[role="treeitem"] span:hover {background-color: #ddd;}
 
 /*--- Phrase Editor ---*/
 #Phrase_Header,
 #Phrase_Name,
-#Phrase_Trigger {
+#Phrase_Trigger,
+#Phrase_Folder {
   padding-bottom: 5px;
 }
 #Phrase_Name input,
-#Phrase_Trigger input {
+#Phrase_Trigger input,
+#Phrase_Folder select {
   float:right;
   width:75%;
 }
 .ql-toolbar,
-.ql-picker-label {
+.ql-picker-label,
+.ql-picker-label:before {
   background-color: var(--editor-toolbar-bg);
   color: var(--editor-toolbar-text);
 }
-.ql-stroke,
-.ql-fill {
+.ql-toolbar.ql-snow .ql-formats:first-child{
+  display: none;
+  margin: 0px;
+}
+.ql-snow .ql-fill,
+.ql-snow .ql-stroke.ql-fill {
+  fill: var(--editor-toolbar-text) !important;
+}
+.ql-snow .ql-stroke {
   stroke: var(--editor-toolbar-text) !important;
 }
 .ql-editor {
   background-color: var(--editor-bg);
   color: var(--editor-text);
-  height: calc(100vh - 110px) !important;
+  height: calc(100vh - 207px) !important;
   overflow-y: auto;
+}
+#Phrase_Text {
+  height: calc(100vh - 207px);
 }
