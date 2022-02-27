@@ -14,6 +14,7 @@
   --editor-text: black;
 }
 body {
+  font-family: "Times New Roman", Times, serif;
   background-color: var(--main-bg);
   color: var(--main-text);
   overflow: auto;
@@ -39,7 +40,6 @@ body {
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
-  width: 300px;
 }
 .close {
   color: #aaaaaa;
@@ -53,20 +53,34 @@ body {
   text-decoration: none;
   cursor: pointer;
 }
-#New_Folder_Dialog {
-  height: 185px
-}
-#New_Folder_Dialog div span,
-#New_Folder_Dialog select,
-#New_Folder_Dialog input {
+#New_Folder_Dialog input,
+#New_Folder_Dialog select {
   margin-bottom: 10px;
-  width: 100%
+  width: 190px;
 }
-#New_Folder_Dialog-ok {
+#New_Folder_Dialog {
+  height: 160px;
+  display: none;
+  width: 300px;
+}
+#Remove_Dialog {
+  height: 185px;
+  display: none;
+  width: 350px;
+}
+#New_Folder_Dialog-ok,
+#Remove_Dialog-no {
   float: right;
   font-weight: bold;
   margin-top: 10px;
 }
+#Remove_Dialog-yes {
+  float: right;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
 /*--- Main Sections ---*/
 #header {
   width: 100%;
