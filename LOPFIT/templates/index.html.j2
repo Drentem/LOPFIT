@@ -8,21 +8,46 @@
     <link href="{{ url_for('static', filename='quill/quill.snow.css') }}" rel="stylesheet" />
     <script src="{{ url_for('static', filename='quill/quill.js') }}"></script>
     <script src="{{ url_for('static', filename='Tree.js') }}"></script>
+    <script src="{{ url_for('static', filename='ops.js') }}"></script>
   </head>
   <body>
+    <div id="ModalConatiner" class="modal">
+      <!-- Modal content -->
+      <div id="New_Folder_Dialog" class="ModalDialog">
+        <span id="New_Folder_Dialog-close" class="close">&times;</span>
+        <h2 id="New_Folder_Dialog-header">New Folder</h2>
+        <div>
+          <span>Folder Name: </span><input type="text" id="folder_name"></input><br/>
+          <span>Parent Folder: </span><select id="New_Folder_Dialog-pfolder" name="pfolder">
+            {% for folder in folders %}
+              <option value={{folder['id']}}>{{folder['name']}}</option>
+            {% endfor %}
+          </select><br/>
+          <button id="New_Folder_Dialog-ok">OK</button>
+        </div>
+      </div>
+      <!-- <div class="ModalDialog">
+        <span class="close">&times;</span>
+        <h2 id="modal-header">Test Message</h2>
+        <span id="modal-content">Test Message</span>
+      </div> -->
+    </div>
     <div id="header">
       <h1>Lots Of Phrases Fit In This</h1>
     </div>
     <div id="Main">
       <div id="Phrases" name="Phrases">
-        <div id="Phrases-Toolbar"></div>
+        <div id="Phrases-Toolbar">
+          <button id="New_Phrase" class=""><span>New Phrase</span></button>
+          <button id="New_Folder" class="doc"><span>New Folder</span></button>
+          <button id="Remove" {{'class="disabled" disabled' if phrase_list|length < 1 else ''}}>Remove Phrase/Folder</button>
+        </div>
         <ul id="Phrase_List" role="tree" aria-labelledby="tree_label">
           {{phrase_list|safe}}
         </ul>
       </div>
       <form id="Phrase">
         <div id="Phrase_Header">
-          <div id="Phrase-Toolbar"></div>
           <div id="Phrase_Name">Name:<input type="text" id="pname" name="pname"></div>
           <div id="Phrase_Trigger">Trigger Phrase:<input type="text" id="ptrigger" name="ptrigger"></div>
           <div id="Phrase_Folder">Folder:

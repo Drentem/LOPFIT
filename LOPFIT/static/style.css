@@ -19,6 +19,55 @@ body {
   overflow: auto;
   margin:0;
 }
+/* The Modal */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+.ModalDialog {
+  background-color: #fefefe;
+  color: black;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 300px;
+}
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+#New_Folder_Dialog {
+  height: 185px
+}
+#New_Folder_Dialog div span,
+#New_Folder_Dialog select,
+#New_Folder_Dialog input {
+  margin-bottom: 10px;
+  width: 100%
+}
+#New_Folder_Dialog-ok {
+  float: right;
+  font-weight: bold;
+  margin-top: 10px;
+}
+/*--- Main Sections ---*/
 #header {
   width: 100%;
   text-align: center;
@@ -52,7 +101,36 @@ body {
 #Phrase_Header{
   padding: 10px;
 }
-
+/*--- Toolbar ---*/
+#Phrases-Toolbar {
+  width: 100%;
+  display: flex;
+}
+#Phrases-Toolbar button {
+  flex: 1;
+  padding-left: 5px;
+  padding-right: 5px;
+  font-weight: bold;
+}
+#New_Phrase span:before {
+  font-family: "Font Awesome 6 Free";
+  content: "\f15c";
+  display: inline-block;
+  padding-right: 2px;
+}
+#New_Folder span:before {
+  font-family: "Font Awesome 6 Free";
+  content: "\f07b";
+  display: inline-block;
+  padding-right: 2px;
+}
+#Remove {
+  background-color: darkred;
+  color: white;
+}
+button.disabled {
+  background-color: grey !important;
+}
 /*--- Phrase List ---*/
 ul[role="tree"] {
   margin: 0;
