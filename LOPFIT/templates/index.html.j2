@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='fontawesome-6/regular.min.css') }}" />
     <link href="{{ url_for('static', filename='quill/quill.snow.css') }}" rel="stylesheet" />
     <script src="{{ url_for('static', filename='quill/quill.js') }}"></script>
-    <script src="{{ url_for('static', filename='Tree.js') }}"></script>
     <script src="{{ url_for('static', filename='ops.js') }}"></script>
+    <script src="{{ url_for('static', filename='Tree.js') }}"></script>
   </head>
   <body>
     <div id="ModalConatiner" class="modal">
@@ -19,9 +19,7 @@
         <div>
           <span>Folder Name: </span><input type="text" id="folder_name"></input><br/>
           <span>Parent Folder: </span><select id="New_Folder_Dialog-pfolder" name="pfolder">
-            {% for folder in folders %}
-              <option value={{folder['id']}}>{{folder['name']}}</option>
-            {% endfor %}
+            {{folders|safe}}
           </select><br/>
           <button id="New_Folder_Dialog-ok">OK</button>
         </div>
@@ -58,29 +56,12 @@
           <div id="Phrase_Name">Name:<input type="text" id="pname" name="pname"></div>
           <div id="Phrase_Trigger">Trigger Phrase:<input type="text" id="ptrigger" name="ptrigger"></div>
           <div id="Phrase_Folder">Folder:
-            <select id="pfolder" name="pfolder">
-              {% for folder in folders %}
-                <option value={{folder['id']}}>{{folder['name']|safe}}</option>
-              {% endfor %}
-            </select>
+            <select id="pfolder" name="pfolder">{{folders|safe}}</select>
           </div>
         </div>
         <div id="Phrase_Text"></div>
       </form>
-      <script>
-      var options = {
-          debug: 'info',
-          modules: {
-            toolbar: '#toolbar'
-          },
-          placeholder: 'Compose an epic...',
-          readOnly: true,
-          theme: 'bubble'
-        };
-        var quill = new Quill('#Phrase_Text', {
-          theme: 'snow'   // Specify theme in configuration
-        });
-      </script>
+      <script>var quill = new Quill('#Phrase_Text', {theme: 'snow'});</script>
     </body>
     </div>
   </body>
