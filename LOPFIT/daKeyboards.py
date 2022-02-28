@@ -10,11 +10,22 @@ except Exception:
     from pynput.keyboard import Controller
     from pynput import keyboard
 finally:
+    from flask import current_app
+    from LOPFIT.ext import db
     kb = Controller()
     suffix = keyboard.Key.space
     end = keyboard.Key.esc
 
-    class KB:
+    class KB(object):
+        def __init__(self, app=None):
+            self.app = app
+            if app is not None:
+                self.init_app(app)
+
+        def init_app(self, app):
+            app.config.setdefault('SQLITE3_DATABASE', ':memory:')
+            app.teardown_appcontext(self.teardown)
+
         def on_press(key):
             try:
                 print('alphanumeric key {0} pressed'.format(

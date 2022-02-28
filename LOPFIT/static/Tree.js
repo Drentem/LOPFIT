@@ -508,7 +508,7 @@ window.addEventListener('load', function () {
         var child = treeitem.firstElementChild;
         label = child ? child.innerText : treeitem.innerText;
       }
-
+      updateSelected(treeitem.id);
       event.stopPropagation();
       event.preventDefault();
     });
