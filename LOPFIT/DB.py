@@ -6,14 +6,27 @@ class Common():
     def query_all(cls):
         return cls.query.all()
 
-    @classmethod
-    def query_id(cls, id):
-        return cls.query.filter(cls.id == id).one()
-
     def add(self):
         db.session.add(self)
         db.session.commit()
         return True
+
+
+class Settings(db.Model, Common):
+    __tablename__ = 'settings'
+    id = db.Column(db.Integer, primary_key=True)
+    setting = db.Column(db.String(length=255), nullable=False)
+    value = db.Column(db.String(length=255), nullable=False)
+
+    @classmethod
+    def query_id(cls, id):
+        return cls.query.filter(cls.id == id).one()
+
+    @classmethod
+    def update(cls, id, value):
+        query = cls.query_id(id)
+        query.value = value
+        db.session.commit()
 
 
 class Phrases(db.Model, Common):
@@ -25,7 +38,11 @@ class Phrases(db.Model, Common):
     sqlite_autoincrement = True
 
     def __repr__(self):
-        return '<%r>' % self.phrase_id
+        return '<Phrase %r>' % self.phrase_id
+
+    @classmethod
+    def query_id(cls, id):
+        return cls.query.filter(cls.phrase_id == id).one()
 
     @classmethod
     def get_phrase_list_html(cls):
@@ -108,38 +125,29 @@ class Folders(db.Model, Common):
     sqlite_autoincrement = True
 
     def __repr__(self):
-        return '<%r>' % self.folder_id
+        return '<Folder %r>' % self.folder_id
 
     @classmethod
-    def remove(cls, id, delete_phrases=False):
-        folders = []
-        folder = cls.query.filter(cls.folder_id == id).one()
-        folders.append(folder.folder_id)
-        sub_folders = cls.query.filter(
-            cls.parent_folder_id == folder.folder_id).all()
+    def query_id(cls, id):
+        return cls.query.filter(cls.folder_id == id).one()
 
-        for subfolder in sub_folders:
-            db.session.delete(subfolder)
-        db.session.delete(folder)
-        db.session.commit()
-
-        affected_phrases = []
-        for f in folders:
-            phrases = Phrase_Folders.get_phrases(f.folder_id)
-            for phrase in phrases:
-                affected_phrases.append(phrase.phrase_id)
-        db.session.commit()
-
-        if delete_phrases:
-            for phrase_id in affected_phrases:
-                phrase = Phrases.query_id(phrase_id)
-                db.session.delete(phrase)
+    @classmethod
+    def remove(cls, id):
+        def processing(folder_id):
+            sub_folders = cls.query.filter(
+                cls.parent_folder_id == folder_id).all()
+            for folder in sub_folders:
+                processing(folder.folder_id)
+                phrases_affected = Phrase_Folders.get_phrases(folder.folder_id)
+                for phrase_folder in phrases_affected:
+                    phrase = Phrases.query_id(phrase_folder.phrase_id)
+                    db.session.delete(phrase)
+                    db.session.delete(phrase_folder)
+                    db.session.commit()
+            folder = cls.query_id(folder_id)
+            db.session.delete(folder)
             db.session.commit()
-        else:
-            for phrase_id in affected_phrases:
-                phrase = Phrases.query_id(phrase_id)
-                db.session.commit()
-
+        processing(id)
         return True
 
     @classmethod
@@ -195,6 +203,11 @@ class Phrase_Folders(db.Model, Common):
         query = cls.query.filter(cls.phrase_id == phrase_id).one()
         query.folder_id = folder_id
         query.commit()
+
+    @classmethod
+    def get_phrases(cls, folder_id):
+        query = cls.query.filter(cls.folder_id == folder_id).all()
+        return query
 
     @classmethod
     def remove(cls, id):

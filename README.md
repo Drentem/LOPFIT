@@ -10,25 +10,22 @@
   - [ ] Add JS API call to update command on backend
 - [ ] Generate API to call in phrases from the database to the GUI (flask)
   - [ ] Execution Command Update
-  - [x] Folder List
-    - [x] Add
-    - [x] Get
-    - [x] Delete
-  - [ ] Phrase List
-    - [x] Get
-    - [ ] Delete
+  - [x] Folder List (Testing complete)
+  - [x] Phrase2Folder Table (Testing complete)
   - [ ] Phrase
     - [ ] Add
     - [ ] Get
     - [ ] Delete
 - [ ] Add JS to handle API calls and frontend updates
-  - [x] Folder List
-    - [x] Add
-    - [x] Get
-    - [ ] Delete
+  - [ ] Execution Command Update
+  - [x] Folders (Testing complete)
   - [x] Phrase List
-    - [x] Get
+    - [x] Get Folders (Testing complete)
+    - [x] Correct glitch where the GET fails to re-add the listeners  (Testing complete)
+    - [ ] Get phrases
+    - [ ] Load Phrase on click
   - [ ] Phrase
     - [ ] Add
     - [ ] Get
     - [ ] Delete
+    - [ ] POST on lost focus of any element

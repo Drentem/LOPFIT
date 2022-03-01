@@ -10,7 +10,6 @@ function updateSelected (id) {
   selected = document.getElementById(id);
   selected.setAttribute('selected','yes');
 }
-
 function send2API (endpoint, method, data) {
   var xhr = new XMLHttpRequest();
   xhr.open(method, endpoint, false);
@@ -30,13 +29,39 @@ function resetFolderDropdown (json_data) {
 function resetPhraseList () {
   var phraseList = document.getElementById('Phrase_List');
   phrase_list = JSON.parse(send2API(phrase_API, "GET"));
+  phraseList.innerHTML = "";
   phraseList.innerHTML = phrase_list['phrase_list'];
-  var trees = document.querySelectorAll('[role="tree"]');
+
+  // set Remove button status
+  var remove_dialog_button = document.getElementById('Remove');
+  if (document.querySelectorAll('[role="treeitem"]').length >0){
+    remove_dialog_button.disabled = false;
+    remove_dialog_button.classList.remove("disabled")
+  } else {
+    remove_dialog_button.disabled = true;
+    remove_dialog_button.classList.add("disabled")
+  }
 
   // Re-initiate the Tree functionality
+  var trees = document.querySelectorAll('[role="tree"]');
   for (var i = 0; i < trees.length; i++) {
     var t = new Tree(trees[i]);
     t.init();
+  }
+
+  var treeitems = document.querySelectorAll('[role="treeitem"]');
+  for (var i = 0; i < treeitems.length; i++) {
+    treeitems[i].addEventListener('click', function (event) {
+      var treeitem = event.currentTarget;
+      var label = treeitem.getAttribute('aria-label');
+      if (!label) {
+        var child = treeitem.firstElementChild;
+        label = child ? child.innerText : treeitem.innerText;
+      }
+      updateSelected(treeitem.id);
+      event.stopPropagation();
+      event.preventDefault();
+    });
   }
 }
 
@@ -72,6 +97,8 @@ window.addEventListener('load', function () {
     send2API(folder_API, "POST", data);
     resetFolderDropdown();
     resetPhraseList();
+    new_folder_dialog_folder_name.value = "";
+    new_folder_dialog_parent_folder.value = 0;
   }
 
   // New Phrase Handler
@@ -81,11 +108,25 @@ window.addEventListener('load', function () {
 
   // Object Deletion Handler
   var remove_dialog = document.getElementById('Remove_Dialog');
-  var remove_dialog_item = document.getElementById('Item');
+  var remove_dialog_header = document.getElementById('Remove_Dialog-header');
+  var remove_dialog_type = document.getElementById('Remove_Dialog-type');
+  var remove_dialog_item = document.getElementById('Remove_Dialog-item');
+  var remove_dialog_warning = document.getElementById('Remove_Dialog-warning');
   var remove_dialog_close_button = document.getElementById('Remove_Dialog-close');
   var remove_dialog_no_button = document.getElementById('Remove_Dialog-no');
   var remove_dialog_yes_button = document.getElementById('Remove_Dialog-yes');
-  var remove_dialog_button = document.getElementById('Remove').onclick = function() {
+  var remove_dialog_button = document.getElementById('Remove');
+  remove_dialog_button.onclick = function() {
+    var selection = document.querySelectorAll('[selected="yes"]')[0];
+    info = selection.id.split('-');
+    remove_dialog_header.innerHTML = "Remove " + info[0].charAt(0).toUpperCase() + info[0].slice(1);
+    remove_dialog_type.innerHTML = info[0];
+    remove_dialog_item.innerHTML = selection.childNodes[0].innerHTML;
+    if (info[0] == "folder") {
+      remove_dialog_warning.innerHTML = "<strong>WARNING:</strong> This will remove the folder and all subfolders and phrases! THIS CANNOT BE UNDONE!"
+    } else {
+      remove_dialog_warning.innerHTML = "<strong>WARNING:</strong> This cannot be undone!"
+    }
     modal.style.display = "block";
     remove_dialog.style.display = "block";
   }
@@ -98,13 +139,17 @@ window.addEventListener('load', function () {
     remove_dialog.style.display = "none";
   }
   remove_dialog_yes_button.onclick = function() {
+    var selection = document.querySelectorAll('[selected="yes"]')[0].id.split('-')[1]
     modal.style.display = "none";
     remove_dialog.style.display = "none";
-    // TODO: Add code to send to API
-    // JSON.stringify({
-    //   id: stuff,
-    //   name:
-    // })
+    data = JSON.stringify({id: selection})
+    if (info[0] == "folder") {
+      send2API(folder_API, "DELETE", data);
+      resetFolderDropdown();
+      resetPhraseList();
+    } else if (info[0] == "phrase") {
+      send2API(phrase_API, "DELETE", data);
+      resetPhraseList();
+    }
   }
-
 });
