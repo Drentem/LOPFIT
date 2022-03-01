@@ -40,9 +40,8 @@ finally:
                 Folders.add(folder)
                 ret = {"folder_added": True}
             elif request.method == "DELETE":
-                folder = Folders.query_id(data['id'])
-                remove_phrases = data['remove']
-                Folders.remove(folder, remove_phrases)
+                Folders.remove(data['id'])
+                ret = {"folder_removed": True}
             elif request.method == 'GET':
                 ret = {"folders": Folders.get_folders_select_html()}
             return jsonify(ret)
@@ -67,8 +66,9 @@ finally:
                 ret = {"folder_added": True}
             elif request.method == "DELETE":
                 phrase = Phrases.query_id(data['id'])
-                # remove_phrases = data['remove']
-                # Phrases.remove(folder, remove_phrases)
+                print(phrase)
+                # Phrases.remove(folder)
+                ret = {"folder_removed": True}
             elif request.method == 'GET':
                 phrases = Phrases.get_phrase_list_html()
                 ret = {"phrase_list": phrases}

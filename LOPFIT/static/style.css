@@ -64,9 +64,9 @@ body {
   width: 300px;
 }
 #Remove_Dialog {
-  height: 185px;
+  height: 215px;
   display: none;
-  width: 350px;
+  width: 365px;
 }
 #New_Folder_Dialog-ok,
 #Remove_Dialog-no {
