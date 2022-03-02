@@ -11,12 +11,17 @@ class Common():
         db.session.commit()
         return True
 
+    @classmethod
+    def commit(cls):
+        db.session.commit()
+
 
 class Settings(db.Model, Common):
     __tablename__ = 'settings'
     id = db.Column(db.Integer, primary_key=True)
     setting = db.Column(db.String(length=255), nullable=False)
     value = db.Column(db.String(length=255), nullable=False)
+    sqlite_autoincrement = True
 
     @classmethod
     def query_id(cls, id):
@@ -32,51 +37,60 @@ class Settings(db.Model, Common):
 class Phrases(db.Model, Common):
     __tablename__ = 'phrases'
     phrase_id = db.Column(db.Integer, primary_key=True)
-    cmd = db.Column(db.String(length=255), nullable=False)
+    cmd = db.Column(db.String(length=255), nullable=False, unique=True)
     name = db.Column(db.String(length=255), nullable=False)
-    phrase = db.Column(db.BLOB, nullable=False)
+    folder_id = folder_id = db.Column(db.Integer)
+    phrase = db.Column(db.BLOB)
     sqlite_autoincrement = True
 
     def __repr__(self):
         return '<Phrase %r>' % self.phrase_id
 
     @classmethod
-    def query_id(cls, id):
-        return cls.query.filter(cls.phrase_id == id).one()
+    def query_id(cls, phrase_id):
+        return cls.query.filter(cls.phrase_id == phrase_id).one()
+
+    @classmethod
+    def get_phrases4folder(cls, folder_id):
+        return cls.query.filter(
+            cls.folder_id == folder_id).order_by(cls.name).all()
 
     @classmethod
     def get_phrase_list_html(cls):
         folders_raw = Folders.get_folders()
-        query = cls.query.join(
-            Phrase_Folders, cls.phrase_id == Phrase_Folders.phrase_id)\
-            .add_columns(Phrase_Folders.folder_id).order_by(cls.name)
         html_list = []
+        print(folders_raw)
 
-        def processing(folder_data):
-            for item in folder_data:
-                html_list.append("<li role='treeitem' aria-expanded='false' ")
-                html_list.append("selected='no' id='folder-" + str(item['id']))
-                html_list.append("'><span>"+item['name']+"</span>")
-                html_list.append("<ul role='group'>")
-
-                if item['id'] in folders_raw.keys():
-                    processing(folders_raw[item['id']])
-                for phrase in query.filter(
-                        Phrase_Folders.folder_id == item['id']).all():
+        def processing(id):
+            if id in folders_raw:
+                for item in folders_raw[id]:
+                    html_list.append(
+                        "<li role='treeitem' aria-expanded='false' " +
+                        "selected='no' id='folder-" + str(item['id']) +
+                        "'><span>" + item['name'] + "</span>")
+                    html_list.append("<ul role='group'>")
+                    if item['id'] in folders_raw.keys():
+                        processing(item['id'])
+                    if len(cls.get_phrases4folder(item['id'])) > 0:
+                        processing(item['id'])
+                    html_list.append('</ul>')
+                    html_list.append('</li>')
+                for phrase in cls.get_phrases4folder(id):
                     html_list.append(
                         "<li role='treeitem' class='doc' id='phrase-" +
-                        str(item['id']) + "'>")
-                    html_list.append(phrase.Phrases.name)
-                    html_list.append('</li>')
-                html_list.append('</ul>')
-                html_list.append('</li>')
+                        str(phrase.phrase_id) + "'>" + phrase.name + '</li>')
+            else:
+                for phrase in cls.get_phrases4folder(id):
+                    html_list.append(
+                        "<li role='treeitem' class='doc' id='phrase-" +
+                        str(phrase.phrase_id) + "'>" + phrase.name + '</li>')
 
         if len(folders_raw) > 0:
-            processing(folders_raw[0])
-
+            processing(0)
+        print('\n'.join(html_list))
         return ''.join(html_list)
 
-    @classmethod
+    @ classmethod
     def get_cmds(cls):
         query = cls.query.all()
         cmds = []
@@ -85,29 +99,29 @@ class Phrases(db.Model, Common):
             cmds.append(i)
         return cmds
 
-    @classmethod
+    @ classmethod
     def get_phrase(cls, phrase_id):
         try:
             return cls.query.filter(cls.phrase_id == phrase_id).one().phrase
         except Exception:
             return False
 
-    @classmethod
+    @ classmethod
     def check_cmd(cls, cmd):
-        query = cls.query.filter(cls.id == id).first()
+        query = cls.query.filter(cls.cmd == cmd).first()
         if query:
             return True
         else:
             return False
 
-    @classmethod
+    @ classmethod
     def remove(cls, phrase_id):
         query = cls.query.filter(cls.phrase_id == phrase_id).one()
         db.session.delete(query)
         db.session.commit()
         return True
 
-    @classmethod
+    @ classmethod
     def update(cls, data):
         phrase = cls.query.filter(cls.id == data['id']).one()
         phrase.cmd = data['cmd']
@@ -127,18 +141,18 @@ class Folders(db.Model, Common):
     def __repr__(self):
         return '<Folder %r>' % self.folder_id
 
-    @classmethod
-    def query_id(cls, id):
-        return cls.query.filter(cls.folder_id == id).one()
+    @ classmethod
+    def query_id(cls, folder_id):
+        return cls.query.filter(cls.folder_id == folder_id).one()
 
-    @classmethod
+    @ classmethod
     def remove(cls, id):
         def processing(folder_id):
             sub_folders = cls.query.filter(
                 cls.parent_folder_id == folder_id).all()
             for folder in sub_folders:
                 processing(folder.folder_id)
-                phrases_affected = Phrase_Folders.get_phrases(folder.folder_id)
+                phrases_affected = Phrases.get_phrases4folder(folder.folder_id)
                 for phrase_folder in phrases_affected:
                     phrase = Phrases.query_id(phrase_folder.phrase_id)
                     db.session.delete(phrase)
@@ -150,7 +164,7 @@ class Folders(db.Model, Common):
         processing(id)
         return True
 
-    @classmethod
+    @ classmethod
     def get_folders(cls):
         query = cls.query.order_by(cls.parent_folder_id, cls.name).all()
         folders_raw = {}
@@ -161,7 +175,7 @@ class Folders(db.Model, Common):
                 {"id": i.folder_id, "name": i.name})
         return folders_raw
 
-    @classmethod
+    @ classmethod
     def get_folders_select_html(cls):
         query = cls.query.order_by(cls.parent_folder_id, cls.name).all()
         folders_raw = {}
@@ -190,28 +204,3 @@ class Folders(db.Model, Common):
             html_list.append(folder['name'])
             html_list.append('</option>')
         return ''.join(html_list)
-
-
-class Phrase_Folders(db.Model, Common):
-    __tablename__ = 'phrases_folders'
-    id = db.Column(db.Integer, primary_key=True)
-    phrase_id = db.Column(db.Integer, primary_key=True)
-    folder_id = db.Column(db.Integer, primary_key=True)
-
-    @classmethod
-    def update_id(cls, phrase_id, folder_id):
-        query = cls.query.filter(cls.phrase_id == phrase_id).one()
-        query.folder_id = folder_id
-        query.commit()
-
-    @classmethod
-    def get_phrases(cls, folder_id):
-        query = cls.query.filter(cls.folder_id == folder_id).all()
-        return query
-
-    @classmethod
-    def remove(cls, id):
-        query = cls.query.filter(cls.id == id).one()
-        db.session.delete(query)
-        db.session.commit()
-        return True

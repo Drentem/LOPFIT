@@ -9,7 +9,7 @@ except Exception:
     from flask import Flask, render_template, request, jsonify
 finally:
     # from LOPFIT.daKeyboards import KB
-    from LOPFIT.DB import Phrases, Folders, Phrase_Folders, db
+    from LOPFIT.DB import Phrases, Folders, db
 
     dbfile = 'sqlite:///LOPFIT.db'
 
@@ -23,61 +23,77 @@ finally:
 
         @app.route('/')
         def index():
-            phrase_folders = Folders.get_folders_select_html()
-            phrase_list = Phrases.get_phrase_list_html()
-            return render_template('index.html.j2',
-                                   folders=phrase_folders,
-                                   phrase_list=phrase_list)
+            return render_template('index.html.j2')
 
         @ app.route('/folder/', methods=["GET", "POST", "DELETE"])
         def folder():
             data = request.get_json()
             if request.method == 'POST':
-                folder = Folders(
-                    name=data['name'],
-                    parent_folder_id=data['parent_folder_id']
-                )
-                Folders.add(folder)
-                ret = {"folder_added": True}
+                if "folder_id" in data:
+                    folder = Folders.query_id(data['folder_id'])
+                    if "name" in data:
+                        folder.name = data['name']
+                    if "parent_folder_id" in data:
+                        folder.parent_folder_id = data['parent_folder_id']
+                    folder.commit()
+                else:
+                    folder = Folders(
+                        name=data['name'],
+                        parent_folder_id=data['parent_folder_id']
+                    )
+                    Folders.add(folder)
+                    ret = {"folder_added": True}
             elif request.method == "DELETE":
                 Folders.remove(data['id'])
                 ret = {"folder_removed": True}
             elif request.method == 'GET':
-                ret = {"folders": Folders.get_folders_select_html()}
+                ret = {"folders_HTML": Folders.get_folders_select_html()}
             return jsonify(ret)
 
-        @ app.route('/phrase/', methods=["GET", "POST", "DELETE"])
+        @ app.route('/phrase/', methods=["GET", "POST"])
         def phrase():
             data = request.get_json()
             if request.method == 'POST':
-                if data['id'] == "new":
-                    phrase = Phrases(name=data['name'])
-
-                    db.session.add(phrase)
-                    folder = Phrase_Folders.update_id(data['id'], data['folder_id'])
-                    db.session.commit()
-                else:
-                    phrase = Phrases.query_id(data['id'])
-                    if "cmd" in data:
-                        phrase.cmd = data['cmd']
-                    phrase.name = data['name']
-                    if "phrase" in data:
-                        phrase.phrase = data['phrase']
-                    phrase.commit()
-                    Phrase_Folders.update_id(data['id'], data['folder_id'])
-                ret = {"folder_added": True}
-            elif request.method == "DELETE":
-                phrase = Phrases.query_id(data['id'])
-                print(phrase)
-                # Phrases.remove(folder)
-                ret = {"folder_removed": True}
+                while Phrases.check_cmd(data['cmd']):
+                    data['cmd'] += "0"
+                phrase = Phrases(
+                    name=data['name'],
+                    cmd=data['cmd'],
+                    folder_id=data['folder_id']
+                )
+                db.session.add(phrase)
+                db.session.commit()
+                ret = {
+                    "phrase_added": True,
+                    "cmd": data['cmd']}
             elif request.method == 'GET':
                 phrases = Phrases.get_phrase_list_html()
-                ret = {"phrase_list": phrases}
+                ret = {"phraseList_HTML": phrases}
             return jsonify(ret)
 
         @ app.route('/phrase/<ID>', methods=["GET", "POST", "DELETE"])
-        def phrase_edit(ID):
-            return render_template('phrases.html.j2')
+        def existing_phrase(ID):
+            data = request.get_json()
+            if request.method == 'POST':
+                phrase = Phrases.query_id(ID)
+                phrase.cmd = data['cmd']
+                phrase.name = data['name']
+                phrase.folder_id = data['folder_id']
+                phrase.phrase = data['phrase']
+                phrase.commit()
+                ret = {"phrase_updated": True}
+            elif request.method == "DELETE":
+                Phrases.remove(ID)
+                db.session.commit()
+                ret = {"folder_removed": True}
+            elif request.method == 'GET':
+                phrase = Phrases.query_id(ID)
+                ret = {
+                    "cmd": phrase.cmd,
+                    "name": phrase.name,
+                    "phrase": phrase.phrase,
+                    "folder_id": phrase.folder_id
+                }
+            return jsonify(ret)
 
         return app

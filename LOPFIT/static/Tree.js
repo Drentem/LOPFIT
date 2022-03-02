@@ -8,37 +8,6 @@
  *           for a tree being used as a file viewer
  */
 
-/* global Treeitem */
-
-'use strict';
-
-/**
- * ARIA Treeview example
- *
- * @function onload
- * @description  after page has loaded initialize all treeitems based on the role=treeitem
- */
-
-window.addEventListener('load', function () {
-  var trees = document.querySelectorAll('[role="tree"]');
-
-  for (var i = 0; i < trees.length; i++) {
-    var t = new Tree(trees[i]);
-    t.init();
-  }
-});
-
-/*
- *   @constructor
- *
- *   @desc
- *       Tree item object for representing the state and user interactions for a
- *       tree widget
- *
- *   @param node
- *       An element with the role=tree attribute
- */
-
 var Tree = function (node) {
   // Check whether node is a DOM element
   if (typeof node !== 'object') {
@@ -487,30 +456,3 @@ Treeitem.prototype.handleMouseOut = function (event) {
  *
  *   Desc:   Setup click events for Tree widget examples
  */
-
-'use strict';
-
-/**
- * ARIA Treeview example
- *
- * @function onload
- * @description  after page has loaded initialize all treeitems based on the role=treeitem
- */
-
-window.addEventListener('load', function () {
-  var treeitems = document.querySelectorAll('[role="treeitem"]');
-
-  for (var i = 0; i < treeitems.length; i++) {
-    treeitems[i].addEventListener('click', function (event) {
-      var treeitem = event.currentTarget;
-      var label = treeitem.getAttribute('aria-label');
-      if (!label) {
-        var child = treeitem.firstElementChild;
-        label = child ? child.innerText : treeitem.innerText;
-      }
-      updateSelected(treeitem.id);
-      event.stopPropagation();
-      event.preventDefault();
-    });
-  }
-});
