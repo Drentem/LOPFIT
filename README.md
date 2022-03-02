@@ -8,11 +8,9 @@
     - [ ] Listener needs to detect when moving from one box to another (Selenium?)
 
 #### Frontend (GUI)
-- [ ] Add selector for end key (space, tab, enter, execute immediately, disable)
-  - [ ] Add to GUI
-  - [ ] Add JS API call to update command on backend
+- [x] Add selector for end key (Testing complete)
 - [ ] Generate API to call in phrases from the database to the GUI (flask)
-  - [ ] Execution Command Update
+  - [x] Execution Command Update
   - [x] Folder List (Testing complete)
   - [x] Phrase2Folder Table (Testing complete)
   - [ ] Phrase
@@ -21,7 +19,7 @@
     - [x] Delete
     - [ ] Post
 - [ ] Add JS to handle API calls and frontend updates
-  - [ ] Execution Command Update
+  - [x] Execution Command Update
   - [x] Folders (Testing complete)
   - [x] Phrase List (Testing complete)
   - [ ] Phrase
