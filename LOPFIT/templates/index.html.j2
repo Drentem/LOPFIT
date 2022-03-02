@@ -21,8 +21,9 @@
         <div id="Phrases-Toolbar">
           <button id="New_Folder" class="doc"><span></span></button>
           <button id="New_Phrase"><span class></span></button>
-          <button id="Move" class="disabled"><span></span></button>
-          <button id="Remove" {{'class="disabled" disabled' if phrase_list|length < 1 else ''}}><span></span></button>
+          <button id="Move" class="disabled" disabled><span></span></button>
+          <button id="Remove" class="disabled" disabled><span></span></button>
+          <button id="Settings"><span class></span></button>
         </div>
         <ul id="Phrase_List" role="tree" aria-labelledby="tree_label">
           {{phrase_list|safe}}
@@ -30,13 +31,18 @@
       </div>
       <form id="Phrase">
         <div id="Phrase_Header">
-          <span id="Phrase_ID">new</span>
           <div id="Phrase_Header_Left">
-            <div id="Phrase_Name">Name:<input type="text" id="pname" name="pname"></div>
-            <div id="Phrase_Trigger">Trigger Phrase:<input type="text" id="ptrigger" name="ptrigger"></div>
-            <div id="Phrase_Folder">Folder:
-              <select id="pfolder" name="pfolder">{{folders|safe}}</select>
+            <div id="Phrase_Name">
+              <label for="pname">Name: </label>
+              <input type="text" id="pname" name="pname">
             </div>
+            <div id="Phrase_Trigger">
+              <label for="ptrigger">Trigger: </label>
+              <input type="text" id="ptrigger" name="ptrigger">
+            </div>
+          </div>
+          <div id="Phrase_Header_Right">
+            <button id="Save"><span></span></button>
           </div>
         </div>
         <div id="Phrase_Text"></div>

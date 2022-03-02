@@ -6,6 +6,7 @@
     - [ ] Need listener to identify if it is in the LOPFIT tab. If so, disable until out of tab.
     - [ ] Listener needs to detect and ignore password boxes
     - [ ] Listener needs to detect when moving from one box to another (Selenium?)
+
 #### Frontend (GUI)
 - [ ] Add selector for end key (space, tab, enter, execute immediately, disable)
   - [ ] Add to GUI
@@ -15,19 +16,17 @@
   - [x] Folder List (Testing complete)
   - [x] Phrase2Folder Table (Testing complete)
   - [ ] Phrase
-    - [ ] Add
-    - [ ] Get
-    - [ ] Delete
+    - [x] Add
+    - [x] Get
+    - [x] Delete
+    - [ ] Post
 - [ ] Add JS to handle API calls and frontend updates
   - [ ] Execution Command Update
   - [x] Folders (Testing complete)
-  - [x] Phrase List
-    - [x] Get Folders (Testing complete)
-    - [x] Correct glitch where the GET fails to re-add the listeners  (Testing complete)
-    - [ ] Get phrases
-    - [ ] Load Phrase on click
+  - [x] Phrase List (Testing complete)
   - [ ] Phrase
-    - [ ] Add
-    - [ ] Get
-    - [ ] Delete
-    - [ ] POST on lost focus of any element
+    - [x] Add
+    - [x] Get
+    - [x] Delete
+    - [ ] POST on Save
+    - [ ] Warning on change without save?

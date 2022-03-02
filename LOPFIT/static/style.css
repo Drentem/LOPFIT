@@ -58,13 +58,19 @@ body {
   height: 30px;
 }
 #New_Folder_Dialog input,
+#Move_Dialog input,
 #New_Folder_Dialog select,
+#Move_Dialog select,
 #New_Phrase_Dialog select {
   margin-bottom: 10px;
   width: 190px;
 }
 #New_Folder_Dialog {
   height: 160px;
+  width: 300px;
+}
+#Move_Dialog {
+  height: 135px;
   width: 300px;
 }
 #New_Phrase_Dialog {
@@ -81,6 +87,7 @@ body {
   margin-top: 10px;
 }
 #New_Folder_Dialog-ok,
+#Move_Dialog-ok,
 #New_Phrase_Dialog-ok,
 #Remove_Dialog-yes {
   float: right;
@@ -122,7 +129,16 @@ body {
   flex-grow: 3;
   display: none;
 }
-#Phrase_Header{padding: 10px;}
+#Phrase_Header{
+  padding: 10px;
+  flex:1;
+  display: flex;
+}
+#Phrase_Header_Left{
+  flex-grow:1;
+  display: inline-block;
+}
+#Phrase_Header_Right{display: inline-block;}
 /*--- Toolbar ---*/
 #Phrases-Toolbar {
   width: 100%;
@@ -141,7 +157,9 @@ body {
 #New_Phrase span:before,
 #New_Folder span:before,
 #Move span:before,
-#Remove span:before {
+#Remove span:before,
+#Save span:before,
+#Settings span:before {
   font-family: "Font Awesome 6 Free";
   display: inline-block;
   padding-right: 2px;
@@ -151,6 +169,13 @@ body {
 #New_Folder span:before {content: "\f65e";}
 #Move span:before {content: "\f074";}
 #Remove span:before {content: "\f2ed";}
+#Settings span:before {content: "\f085";}
+#Save {
+  width: 44px;
+  height: 44px;
+  margin-left: 20px;
+}
+#Save span:before {content: "\f0c7";}
 button.disabled {background-color: grey !important;}
 /*--- Phrase List ---*/
 ul[role="tree"] {
@@ -203,23 +228,23 @@ ul[role="tree"] li span {width:100%}
 }
 [role="treeitem"].hover,
 [role="treeitem"] span:hover {background-color: #ddd;}
+[selected="yes"] {background-color: #ddd;}
 
 /*--- Phrase Editor ---*/
-span#Phrase_ID{
-  display: none;
-}
 #Phrase_Header,
 #Phrase_Name,
-#Phrase_Trigger,
-#Phrase_Folder {
+#Phrase_Trigger{
   padding-bottom: 5px;
 }
-#Phrase_Name input,
-#Phrase_Trigger input,
-#Phrase_Folder select {
+#Phrase_Name input{
   float:right;
-  width:75%;
+  width:calc(100% - 55px);
 }
+#Phrase_Trigger input{
+  float:right;
+  width:calc(100% - 65px);
+}
+
 .ql-toolbar,
 .ql-picker-label,
 .ql-picker-label:before {
@@ -240,7 +265,7 @@ span#Phrase_ID{
 .ql-editor {
   background-color: var(--editor-bg);
   color: var(--editor-text);
-  height: calc(100vh - 207px) !important;
+  height: calc(100vh - 174px) !important;
   overflow-y: auto;
 }
 #Phrase_Text {
