@@ -50,19 +50,21 @@ finally:
         def phrase():
             data = request.get_json()
             if request.method == 'POST':
-                if id in data:
+                if data['id'] == "new":
+                    phrase = Phrases(name=data['name'])
+
+                    db.session.add(phrase)
+                    folder = Phrase_Folders.update_id(data['id'], data['folder_id'])
+                    db.session.commit()
+                else:
                     phrase = Phrases.query_id(data['id'])
-                    phrase.cmd = data['cmd']
+                    if "cmd" in data:
+                        phrase.cmd = data['cmd']
                     phrase.name = data['name']
-                    phrase.phrase = data['phrase']
+                    if "phrase" in data:
+                        phrase.phrase = data['phrase']
                     phrase.commit()
                     Phrase_Folders.update_id(data['id'], data['folder_id'])
-                else:
-                    phrase = Phrases(
-                        name=data['name'],
-                        parent_folder_id=data['parent_folder_id']
-                    )
-                    Phrases.add(phrase)
                 ret = {"folder_added": True}
             elif request.method == "DELETE":
                 phrase = Phrases.query_id(data['id'])

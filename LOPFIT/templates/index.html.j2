@@ -5,48 +5,24 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='fontawesome-6/fontawesome.min.css') }}" />
     <link rel="stylesheet" href="{{ url_for('static', filename='fontawesome-6/regular.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='fontawesome-6/solid.css') }}" />
     <link href="{{ url_for('static', filename='quill/quill.snow.css') }}" rel="stylesheet" />
     <script src="{{ url_for('static', filename='quill/quill.js') }}"></script>
     <script src="{{ url_for('static', filename='ops.js') }}"></script>
     <script src="{{ url_for('static', filename='Tree.js') }}"></script>
   </head>
   <body>
-    <div id="ModalConatiner" class="modal">
-      <!-- Modal content -->
-      <div id="New_Folder_Dialog" class="ModalDialog">
-        <span id="New_Folder_Dialog-close" class="close">&times;</span>
-        <h2 id="New_Folder_Dialog-header">New Folder</h2>
-        <div>
-          <span>Folder Name: </span><input type="text" id="folder_name"></input><br/>
-          <span>Parent Folder: </span><select id="New_Folder_Dialog-pfolder" name="pfolder">
-            {{folders|safe}}
-          </select><br/>
-          <button id="New_Folder_Dialog-ok">OK</button>
-        </div>
-      </div>
-      <div id="Remove_Dialog" class="ModalDialog">
-        <span id="Remove_Dialog-close" class="close">&times;</span>
-        <h2 id="Remove_Dialog-header">Remove</h2>
-        <div>
-          Are you sure you want to remove the following <span id="Remove_Dialog-type"></span>:<br/>
-          <br/>
-          <span id="Remove_Dialog-item"></span><br/>
-          <br/>
-          <span id="Remove_Dialog-warning"></span><br/>
-          <button id="Remove_Dialog-no">No</button>
-          <button id="Remove_Dialog-yes">Yes</button>
-        </div>
-      </div>
-    </div>
+    <div id="ModalConatiner" class="modal"></div>
     <div id="header">
       <h1>Lots Of Phrases Fit In This</h1>
     </div>
     <div id="Main">
       <div id="Phrases" name="Phrases">
         <div id="Phrases-Toolbar">
-          <button id="New_Phrase" class=""><span>New Phrase</span></button>
-          <button id="New_Folder" class="doc"><span>New Folder</span></button>
-          <button id="Remove" {{'class="disabled" disabled' if phrase_list|length < 1 else ''}}>Remove Phrase/Folder</button>
+          <button id="New_Folder" class="doc"><span></span></button>
+          <button id="New_Phrase"><span class></span></button>
+          <button id="Move" class="disabled"><span></span></button>
+          <button id="Remove" {{'class="disabled" disabled' if phrase_list|length < 1 else ''}}><span></span></button>
         </div>
         <ul id="Phrase_List" role="tree" aria-labelledby="tree_label">
           {{phrase_list|safe}}
@@ -54,10 +30,13 @@
       </div>
       <form id="Phrase">
         <div id="Phrase_Header">
-          <div id="Phrase_Name">Name:<input type="text" id="pname" name="pname"></div>
-          <div id="Phrase_Trigger">Trigger Phrase:<input type="text" id="ptrigger" name="ptrigger"></div>
-          <div id="Phrase_Folder">Folder:
-            <select id="pfolder" name="pfolder">{{folders|safe}}</select>
+          <span id="Phrase_ID">new</span>
+          <div id="Phrase_Header_Left">
+            <div id="Phrase_Name">Name:<input type="text" id="pname" name="pname"></div>
+            <div id="Phrase_Trigger">Trigger Phrase:<input type="text" id="ptrigger" name="ptrigger"></div>
+            <div id="Phrase_Folder">Folder:
+              <select id="pfolder" name="pfolder">{{folders|safe}}</select>
+            </div>
           </div>
         </div>
         <div id="Phrase_Text"></div>

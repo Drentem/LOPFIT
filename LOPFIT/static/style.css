@@ -53,27 +53,35 @@ body {
   text-decoration: none;
   cursor: pointer;
 }
+#ModalConatiner button {
+  width: 100px;
+  height: 30px;
+}
 #New_Folder_Dialog input,
-#New_Folder_Dialog select {
+#New_Folder_Dialog select,
+#New_Phrase_Dialog select {
   margin-bottom: 10px;
   width: 190px;
 }
 #New_Folder_Dialog {
   height: 160px;
-  display: none;
+  width: 300px;
+}
+#New_Phrase_Dialog {
+  height: 140px;
   width: 300px;
 }
 #Remove_Dialog {
   height: 215px;
-  display: none;
-  width: 365px;
+  width: 385px;
 }
-#New_Folder_Dialog-ok,
 #Remove_Dialog-no {
-  float: right;
+  float: left;
   font-weight: bold;
   margin-top: 10px;
 }
+#New_Folder_Dialog-ok,
+#New_Phrase_Dialog-ok,
 #Remove_Dialog-yes {
   float: right;
   font-weight: bold;
@@ -99,7 +107,8 @@ body {
   padding: 0px;
 }
 #Phrases {
-  width: 10%;
+  min-width: 10%;
+  max-width: 25%;
   border-Right: 1px solid var(--main-text);
   flex-grow: 1;
   resize: none;
@@ -111,10 +120,9 @@ body {
   max-width: 95%;
   min-width: 50%;
   flex-grow: 3;
+  display: none;
 }
-#Phrase_Header{
-  padding: 10px;
-}
+#Phrase_Header{padding: 10px;}
 /*--- Toolbar ---*/
 #Phrases-Toolbar {
   width: 100%;
@@ -122,29 +130,28 @@ body {
 }
 #Phrases-Toolbar button {
   flex: 1;
-  padding-left: 5px;
-  padding-right: 5px;
   font-weight: bold;
-}
-#New_Phrase span:before {
-  font-family: "Font Awesome 6 Free";
-  content: "\f15c";
-  display: inline-block;
-  padding-right: 2px;
-}
-#New_Folder span:before {
-  font-family: "Font Awesome 6 Free";
-  content: "\f07b";
-  display: inline-block;
-  padding-right: 2px;
+  width:100%;
+  height: 30px;
 }
 #Remove {
   background-color: darkred;
   color: white;
 }
-button.disabled {
-  background-color: grey !important;
+#New_Phrase span:before,
+#New_Folder span:before,
+#Move span:before,
+#Remove span:before {
+  font-family: "Font Awesome 6 Free";
+  display: inline-block;
+  padding-right: 2px;
+  font-size: 20px;
 }
+#New_Phrase span:before {content: "\f15c";}
+#New_Folder span:before {content: "\f65e";}
+#Move span:before {content: "\f074";}
+#Remove span:before {content: "\f2ed";}
+button.disabled {background-color: grey !important;}
 /*--- Phrase List ---*/
 ul[role="tree"] {
   margin: 0;
@@ -198,6 +205,9 @@ ul[role="tree"] li span {width:100%}
 [role="treeitem"] span:hover {background-color: #ddd;}
 
 /*--- Phrase Editor ---*/
+span#Phrase_ID{
+  display: none;
+}
 #Phrase_Header,
 #Phrase_Name,
 #Phrase_Trigger,
