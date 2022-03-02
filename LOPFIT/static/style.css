@@ -61,7 +61,8 @@ body {
 #Move_Dialog input,
 #New_Folder_Dialog select,
 #Move_Dialog select,
-#New_Phrase_Dialog select {
+#New_Phrase_Dialog select,
+#Settings_Dialog select {
   margin-bottom: 10px;
   width: 190px;
 }
@@ -81,6 +82,10 @@ body {
   height: 215px;
   width: 385px;
 }
+#Settings_Dialog {
+  height: 145px;
+  width: 300px;
+}
 #Remove_Dialog-no {
   float: left;
   font-weight: bold;
@@ -89,6 +94,7 @@ body {
 #New_Folder_Dialog-ok,
 #Move_Dialog-ok,
 #New_Phrase_Dialog-ok,
+#Settings_Dialog-ok,
 #Remove_Dialog-yes {
   float: right;
   font-weight: bold;

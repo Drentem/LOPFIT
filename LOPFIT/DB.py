@@ -24,12 +24,20 @@ class Settings(db.Model, Common):
     sqlite_autoincrement = True
 
     @classmethod
-    def query_id(cls, id):
-        return cls.query.filter(cls.id == id).one()
+    def query_setting(cls, setting):
+        return cls.query.filter(cls.setting == setting).one().value
 
     @classmethod
-    def update(cls, id, value):
-        query = cls.query_id(id)
+    def init(cls):
+        if not cls.query.filter(cls.setting == "execution_key").first():
+            cls.add(Settings(
+                setting="execution_key",
+                value=0
+            ))
+
+    @classmethod
+    def update(cls, setting, value):
+        query = cls.query.filter(cls.setting == setting).one()
         query.value = value
         db.session.commit()
 
@@ -40,7 +48,8 @@ class Phrases(db.Model, Common):
     cmd = db.Column(db.String(length=255), nullable=False, unique=True)
     name = db.Column(db.String(length=255), nullable=False)
     folder_id = folder_id = db.Column(db.Integer)
-    phrase = db.Column(db.BLOB)
+    phrase_text = db.Column(db.BLOB)
+    phrase_html = db.Column(db.BLOB)
     sqlite_autoincrement = True
 
     def __repr__(self):
@@ -51,15 +60,24 @@ class Phrases(db.Model, Common):
         return cls.query.filter(cls.phrase_id == phrase_id).one()
 
     @classmethod
-    def get_phrases4folder(cls, folder_id):
-        return cls.query.filter(
-            cls.folder_id == folder_id).order_by(cls.name).all()
+    def get_phrases(cls):
+        query = cls.query.order_by(cls.folder_id, cls.name).all()
+        phrases_raw = {}
+        for i in query:
+            if i.folder_id not in phrases_raw.keys():
+                phrases_raw[i.folder_id] = []
+            phrases_raw[i.folder_id].append(
+                {"id": i.phrase_id, "name": i.name})
+        return phrases_raw
 
     @classmethod
     def get_phrase_list_html(cls):
         folders_raw = Folders.get_folders()
+        phrases_raw = Phrases.get_phrases()
+
         html_list = []
         print(folders_raw)
+        print(phrases_raw)
 
         def processing(id):
             if id in folders_raw:
@@ -69,25 +87,25 @@ class Phrases(db.Model, Common):
                         "selected='no' id='folder-" + str(item['id']) +
                         "'><span>" + item['name'] + "</span>")
                     html_list.append("<ul role='group'>")
-                    if item['id'] in folders_raw.keys():
+                    if item['id'] in folders_raw:
                         processing(item['id'])
-                    if len(cls.get_phrases4folder(item['id'])) > 0:
-                        processing(item['id'])
+                    if item['id'] in phrases_raw:
+                        for phrase in phrases_raw[item['id']]:
+                            html_list.append(
+                                "<li role='treeitem' class='doc' id='phrase-" +
+                                str(phrase['id']) + "'>" +
+                                phrase['name'] + '</li>')
                     html_list.append('</ul>')
                     html_list.append('</li>')
-                for phrase in cls.get_phrases4folder(id):
+            if id == 0 and id in phrases_raw:
+                for phrase in phrases_raw[id]:
                     html_list.append(
                         "<li role='treeitem' class='doc' id='phrase-" +
-                        str(phrase.phrase_id) + "'>" + phrase.name + '</li>')
-            else:
-                for phrase in cls.get_phrases4folder(id):
-                    html_list.append(
-                        "<li role='treeitem' class='doc' id='phrase-" +
-                        str(phrase.phrase_id) + "'>" + phrase.name + '</li>')
+                        str(phrase['id']) + "'>" +
+                        phrase['name'] + '</li>')
 
         if len(folders_raw) > 0:
             processing(0)
-        print('\n'.join(html_list))
         return ''.join(html_list)
 
     @ classmethod

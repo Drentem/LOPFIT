@@ -1,5 +1,6 @@
 var folder_API = "/folder/"
 var phrase_API = "/phrase/"
+var config_API = "/config/"
 
 // API functions
 function send2API (endpoint, method, data) {
@@ -23,7 +24,6 @@ function resetPhraseList () {
   phraseList_HTML = JSON.parse(send2API(phrase_API, "GET"));
   phraseList.innerHTML = "";
   phraseList.innerHTML = phraseList_HTML['phraseList_HTML'];
-  console.log(phraseList_HTML['phraseList_HTML'])
   // set Remove button status
   var removeButton = document.getElementById('Remove');
   var move_button = document.getElementById('Move');
@@ -84,15 +84,15 @@ function loadPhrase(id) {
   var p_folder = document.getElementById('pfolder');
   var p_text = document.getElementById('Phrase_Text').childNodes[0];
   var phrase = document.getElementById('Phrase');
+  var save_button = document.getElementById('Save');
   var id = id.split('-')[1];
-
   p = JSON.parse(send2API(phrase_API + id.toString(), "GET"));
+  save_button.setAttribute('phrase_id',id)
   p_name.value = p['name'];
   p_trigger.value = p['cmd'];
-  p_text.innerText = p['phrase'];
+  p_text.innerHTML = p['phrase_html'];
   phrase.style.display= "block";
 }
-
 
 // New Folder Dialog
 function newFolder (modalConatiner){
@@ -155,7 +155,6 @@ function newPhrase (modalConatiner){
     var pfolder = document.getElementById('pfolder').value;
     modalConatiner.style.display = "none";
     data = JSON.stringify({
-      id: "new",
       name: "New Phrase",
       cmd: "NewPhrase",
       folder_id: pfolder
@@ -212,15 +211,10 @@ function moveDialog (modalConatiner){
       send2API(folder_API, "POST", data);
       resetPhraseList();
     } else if (info[0] == "phrase") {
-      var p_name = document.getElementById('pname');
-      var p_trigger = document.getElementById('ptrigger');
-      var p_text = document.getElementById('Phrase_Text').childNodes[0];
-      var phrase = document.getElementById('Phrase');
-      p_name.value = "New Phrase";
-      p_trigger.value = "";
-      p_text.innerText = "";
-      phrase.style.display="none";
-      send2API(phrase_API+id.toString(), "POST");
+      data = JSON.stringify({
+        folder_id: pfolder
+      });
+      send2API(phrase_API+info[1].toString(), "POST", data);
       resetPhraseList();
     }
   }
@@ -285,47 +279,41 @@ function removeDialog (modalConatiner){
 // Settings Dialog
 function settingsDialog (modalConatiner){
   // Display Dialog
-  newPhrase_HTML = '<div id="New_Phrase_Dialog" class="ModalDialog">'
-  newPhrase_HTML += '<span id="New_Phrase_Dialog-close" class="close">&times;</span>'
-  newPhrase_HTML += '<h2 id="New_Phrase_Dialog-header">New Phrase</h2>'
-  newPhrase_HTML += '<div>'
-  newPhrase_HTML += '<span>Folder: </span><select id="pfolder" name="pfolder"></select><br/>'
-  newPhrase_HTML += '<button id="New_Phrase_Dialog-ok">OK</button>'
-  newPhrase_HTML += '</div></div>'
-  modalConatiner.innerHTML = newPhrase_HTML;
-  resetFolderDropdown('pfolder');
+  settings_HTML = '<div id="Settings_Dialog" class="ModalDialog">'
+  settings_HTML += '<span id="Settings_Dialog-close" class="close">&times;</span>'
+  settings_HTML += '<h2 id="Settings_Dialog-header">Settings</h2>'
+  settings_HTML += '<div><span>Execution key: </span>'
+  settings_HTML += '<select id="execution_key" name="execution_key">'
+  settings_HTML += '<option value=0>Space</option>'
+  settings_HTML += '<option value=1>Tab</option>'
+  settings_HTML += '<option value=2>Enter</option>'
+  settings_HTML += '<option value=3>Execute Immediately</option>'
+  settings_HTML += '<option value=-1>Disabled</option>'
+  settings_HTML += '</select><br/>'
+  settings_HTML += '<button id="Settings_Dialog-ok">OK</button>'
+  settings_HTML += '</div></div>'
+  modalConatiner.innerHTML = settings_HTML;
+  var execution_key = document.getElementById('execution_key');
   modalConatiner.style.display = "block";
+  execution_key_value = JSON.parse(send2API(config_API+"execution_key", "GET"))['value'];
+  execution_key.value = execution_key_value;
 
   // Handle Dialog Elements
-  var newPhrase_close = document.getElementById('New_Phrase_Dialog-close');
-  newPhrase_close.onclick = function() {
+  var settings_close = document.getElementById('Settings_Dialog-close');
+  settings_close.onclick = function() {
     modalConatiner.style.display = "none";
     modalConatiner.innerHTML = "";
   }
-  var newPhrase_ok = document.getElementById('New_Phrase_Dialog-ok');
-  newPhrase_ok.onclick = function() {
-    var pfolder = document.getElementById('pfolder').value;
+  var settings_ok = document.getElementById('Settings_Dialog-ok');
+  settings_ok.onclick = function() {
     modalConatiner.style.display = "none";
     data = JSON.stringify({
-      id: "new",
-      name: "New Phrase",
-      cmd: "NewPhrase",
-      folder_id: pfolder
+      key: "execution_key",
+      value: execution_key.value
     })
-    data = JSON.parse(send2API(phrase_API, "POST", data));
-    resetPhraseList();
-    modalConatiner.innerHTML = "";
-    var p_name = document.getElementById('pname');
-    var p_trigger = document.getElementById('ptrigger');
-    var p_text = document.getElementById('Phrase_Text').childNodes[0];
-    var phrase = document.getElementById('Phrase');
-    p_name.value = "New Phrase";
-    p_trigger.value = "";
-    p_text.innerText = "";
-    phrase.style.display="block";
+    data = JSON.parse(send2API(config_API+"execution_key", "POST", data));
   }
 }
-
 
 // On Load setup
 window.addEventListener('load', function () {
@@ -337,19 +325,20 @@ window.addEventListener('load', function () {
   var move_button = document.getElementById('Move');
   var remove_button = document.getElementById('Remove');
   var settings_button = document.getElementById('Settings');
+  var save_button = document.getElementById('Save');
 
   var selection = document.querySelectorAll('[selected="yes"]')
-    if (selection.length > 0) {
-      move_button.disabled=false;
-      move_button.classList.remove("disabled");
-      remove_button.disabled=false;
-      remove_button.classList.remove("disabled");
-    } else {
-      move_button.disabled=true;
-      move_button.classList.add("disabled");
-      remove_button.disabled=true;
-      remove_button.classList.add("disabled");
-    }
+  if (selection.length > 0) {
+    move_button.disabled=false;
+    move_button.classList.remove("disabled");
+    remove_button.disabled=false;
+    remove_button.classList.remove("disabled");
+  } else {
+    move_button.disabled=true;
+    move_button.classList.add("disabled");
+    remove_button.disabled=true;
+    remove_button.classList.add("disabled");
+  }
 
   // On Click handlers
   newFolder_button.onclick = function() {newFolder(modal);}
@@ -357,4 +346,18 @@ window.addEventListener('load', function () {
   move_button.onclick = function() {moveDialog(modal);}
   remove_button.onclick = function() {removeDialog(modal);}
   settings_button.onclick = function() {settingsDialog(modal);}
+  save_button.onclick = function() {
+    var p_name = document.getElementById('pname');
+    var p_trigger = document.getElementById('ptrigger');
+    var p_text = document.getElementById('Phrase_Text').childNodes[0];
+    var id = save_button.getAttribute('phrase_id')
+    data = JSON.stringify({
+      name: p_name.value,
+      cmd: p_trigger.value,
+      phrase_html: p_text.innerHTML,
+      phrase_text: p_text.innerText
+    })
+    send2API(phrase_API+id.toString(), "POST", data);
+    resetPhraseList()
+  }
 });
