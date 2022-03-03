@@ -16,15 +16,9 @@
       - [ ] Replace temp var back to clipboard (as if we never borrowed it)
       - [ ] Listener needs to detect and ignore password boxes
   - [ ] MacOS
-    - [ ] Clipboard
-      - [x] Copy current clipboard to temp var
-      - [x] Copy phrase to clipboard
-      - [x] Add TODO block for future form handling
-      - [ ] Paste phrase to current keyboard location (Possibly via CTRL-V)
-      - [x] Replace temp var back to clipboard (as if we never borrowed it)
-      - [x] Listener needs to detect and ignore password boxes
-        - Uses Secure Input checks
-      - [ ] What in the world is happening after exit???? Mass paste of current clipboard????
+    - [x] Clipboard
+- [ ] Integrate with GUI
+
 
 #### Frontend (GUI)
 ### COMPLETE!!!

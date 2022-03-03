@@ -40,16 +40,17 @@ class KB(object):
         app.config.setdefault('SQLITE3_DATABASE', ':memory:')
         app.teardown_appcontext(self.teardown)
 
-    def __execute(self):
-        if ''.join(self.code) == "test":
-            for i in range(0, len(self.code)+1):
-                self.kb.tap(Key.backspace)
-            self.CP.borrow(html="<strong>Bold</strong>", text="Bold")
-            self.kb.press(paste_keys[0])
-            self.kb.tap(paste_keys[1])
-            self.kb.release(paste_keys[0])
-            sleep(0.1)
-            self.CP.giveBack()
+    def __execute(self, inGUI=False):
+        if not inGUI:
+            if ''.join(self.code) == "test":
+                for i in range(0, len(self.code)+1):
+                    self.kb.tap(Key.backspace)
+                self.CP.borrow(html="<strong>Bold</strong>", text="Bold")
+                self.kb.press(paste_keys[0])
+                self.kb.tap(paste_keys[1])
+                self.kb.release(paste_keys[0])
+                sleep(0.1)
+                self.CP.giveBack()
         self.__reset()
 
     def __Listener_Check(self, key):
@@ -73,7 +74,6 @@ class KB(object):
 
     def __reset(self):
         self.code.clear()
-        print('reset')
 
     def __start(self):
         while True:
