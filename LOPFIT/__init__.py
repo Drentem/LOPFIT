@@ -78,7 +78,8 @@ def create_app():
             db.session.commit()
             ret = {
                 "phrase_added": True,
-                "cmd": data['cmd']}
+                "cmd": data['cmd'],
+                "phrase_id": phrase.phrase_id}
         elif request.method == 'GET':
             phrases = Phrases.get_phrase_list_html()
             ret = {"phraseList_HTML": phrases}
