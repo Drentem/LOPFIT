@@ -213,9 +213,11 @@ function newPhrase (modalConatiner){
     var p_text = document.getElementById('Phrase_Text').childNodes[0];
     var phrase = document.getElementById('Phrase');
     p_name.value = "New Phrase";
-    p_trigger.value = "";
+    p_trigger.value = data['cmd'];
     p_text.innerText = "";
     phrase.style.display="block";
+    var save_button = document.getElementById('Save');
+    save_button.setAttribute('phrase_id',data['phrase_id'])
   }
 }
 
