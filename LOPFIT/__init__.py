@@ -29,29 +29,38 @@ def create_app():
     def index():
         return render_template('index.html.j2')
 
-    @app.route('/folder/', methods=["GET", "POST", "DELETE"])
-    def folder():
+    @app.route('/folder/', methods=["GET", "POST"])
+    def folders():
         data = request.get_json()
         if request.method == 'POST':
-            if "folder_id" in data:
-                folder = Folders.query_id(data['folder_id'])
-                if "name" in data:
-                    folder.name = data['name']
-                if "parent_folder_id" in data:
-                    folder.parent_folder_id = data['parent_folder_id']
-                folder.commit()
-            else:
-                folder = Folders(
-                    name=data['name'],
-                    parent_folder_id=data['parent_folder_id']
-                )
-                Folders.add(folder)
-                ret = {"folder_added": True}
+            folder = Folders(
+                name=data['name'],
+                parent_folder_id=data['parent_folder_id']
+            )
+            Folders.add(folder)
+            ret = {"folder_added": True}
+        elif request.method == 'GET':
+            folder_html = Folders.get_folders_select_html()
+            ret = {"folders_HTML": folder_html}
+        return jsonify(ret)
+
+    @app.route('/folder/<ID>', methods=["GET", "POST", "DELETE"])
+    def folder(ID):
+        data = request.get_json()
+        if request.method == 'POST':
+            folder = Folders.query_id(ID)
+            if "name" in data:
+                folder.name = data['name']
+            if "parent_folder_id" in data:
+                folder.parent_folder_id = data['parent_folder_id']
+            folder.commit()
+            ret = {"folder_updated": True}
         elif request.method == "DELETE":
-            Folders.remove(data['id'])
+            Folders.remove(ID)
             ret = {"folder_removed": True}
         elif request.method == 'GET':
-            ret = {"folders_HTML": Folders.get_folders_select_html()}
+            folder_html = Folders.get_folders_select_html(ID)
+            ret = {"folders_HTML": folder_html}
         return jsonify(ret)
 
     @app.route('/phrase/', methods=["GET", "POST"])

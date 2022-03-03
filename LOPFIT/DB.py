@@ -74,10 +74,7 @@ class Phrases(db.Model, Common):
     def get_phrase_list_html(cls):
         folders_raw = Folders.get_folders()
         phrases_raw = Phrases.get_phrases()
-
         html_list = []
-        print(folders_raw)
-        print(phrases_raw)
 
         def processing(id):
             if id in folders_raw:
@@ -194,8 +191,13 @@ class Folders(db.Model, Common):
         return folders_raw
 
     @ classmethod
-    def get_folders_select_html(cls):
-        query = cls.query.order_by(cls.parent_folder_id, cls.name).all()
+    def get_folders_select_html(cls, exclude=False):
+        if exclude:
+            query = cls.query.filter(
+                cls.parent_folder_id != exclude, cls.folder_id != exclude)\
+                .order_by(cls.parent_folder_id, cls.name).all()
+        else:
+            query = cls.query.order_by(cls.parent_folder_id, cls.name).all()
         folders_raw = {}
         for i in query:
             if i.parent_folder_id not in folders_raw.keys():

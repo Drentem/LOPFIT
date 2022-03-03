@@ -4,6 +4,7 @@ var config_API = "/config/"
 
 // API functions
 function send2API (endpoint, method, data) {
+  console.log(data)
   var xhr = new XMLHttpRequest();
   xhr.open(method, endpoint, false);
   if (data) {xhr.setRequestHeader('Content-Type', 'application/json');};
@@ -14,9 +15,50 @@ function send2API (endpoint, method, data) {
 }
 
 // Functionality functions
-function resetFolderDropdown (element) {
+function savePhrase(id) {
+  var p_name = document.getElementById('pname');
+  var p_trigger = document.getElementById('ptrigger');
+  var p_text = document.getElementById('Phrase_Text').childNodes[0];
+  data = JSON.stringify({
+    name: p_name.value,
+    cmd: p_trigger.value,
+    phrase_html: p_text.innerHTML,
+    phrase_text: p_text.innerText
+  });
+  send2API(phrase_API+id.toString(), "POST", data);
+
+  var phrases_name = document.getElementById('phrase-'+id.toString());
+  phrases_name.innerText=p_name.value;
+}
+function loadPhrase(id){
+  var p_name = document.getElementById('pname');
+  var p_trigger = document.getElementById('ptrigger');
+  var p_folder = document.getElementById('pfolder');
+  var p_text = document.getElementById('Phrase_Text').childNodes[0];
+  var p_text_parent = document.getElementById('Phrase_Text');
+  var phrase = document.getElementById('Phrase');
+  var save_button = document.getElementById('Save');
+  p = JSON.parse(send2API(phrase_API + id.toString(), "GET"));
+  save_button.setAttribute('phrase_id',id)
+  p_text_parent.setAttribute('dirty','loading');
+  p_name.value = p['name'];
+  p_trigger.value = p['cmd'];
+  quill.setContents([])
+  quill.clipboard.dangerouslyPasteHTML(p['phrase_html']);
+  phrase.style.display= "block";
+  p_text_parent.setAttribute('dirty','no');
+  var dirty = document.querySelectorAll('[dirty="yes"]');
+  for (let i = 0; i < dirty.length; i++){
+    dirty[i].setAttribute('dirty','no')
+  }
+}
+function resetFolderDropdown (element,exclude=false) {
   var folderDropdown = document.getElementById(element);
-  folders_HTML = JSON.parse(send2API(folder_API, "GET"));
+  if (exclude){
+    folders_HTML = JSON.parse(send2API(folder_API+exclude, "GET"));
+  } else {
+    folders_HTML = JSON.parse(send2API(folder_API, "GET"));
+  }
   folderDropdown.innerHTML = folders_HTML['folders_HTML'];
 }
 function resetPhraseList () {
@@ -26,11 +68,11 @@ function resetPhraseList () {
   phraseList.innerHTML = phraseList_HTML['phraseList_HTML'];
   // set Remove button status
   var removeButton = document.getElementById('Remove');
-  var move_button = document.getElementById('Move');
+  var moveEdit_button = document.getElementById('MoveEdit');
   removeButton.disabled = false;
   removeButton.classList.remove("disabled")
-  move_button.disabled=false;
-  move_button.classList.remove("disabled");
+  moveEdit_button.disabled=false;
+  moveEdit_button.classList.remove("disabled");
 
   // Re-initiate the Tree functionality
   var trees = document.querySelectorAll('[role="tree"]');
@@ -49,7 +91,7 @@ function resetPhraseList () {
       }
       updateSelected(treeitem.id);
       if (treeitem.classList.contains("doc")){
-        loadPhrase(treeitem.id)
+        checkPhrase(treeitem.id.split('-')[1])
       }
       event.stopPropagation();
       event.preventDefault();
@@ -65,33 +107,37 @@ function updateSelected (id) {
   selected = document.getElementById(id);
   selected.setAttribute('selected','yes');
   var removeButton = document.getElementById('Remove');
-  var move_button = document.getElementById('Move');
+  var moveEdit_button = document.getElementById('MoveEdit');
   if (document.querySelectorAll('[role="treeitem"]').length >0){
     removeButton.disabled = false;
     removeButton.classList.remove("disabled")
-    move_button.disabled=false;
-    move_button.classList.remove("disabled");
+    moveEdit_button.disabled=false;
+    moveEdit_button.classList.remove("disabled");
   } else {
     removeButton.disabled = true;
     removeButton.classList.add("disabled")
-    move_button.disabled=true;
-    move_button.classList.add("disabled");
+    moveEdit_button.disabled=true;
+    moveEdit_button.classList.add("disabled");
+  }
+  if (selected.id.split('-')[0] == "folder") {
+    moveEdit_button.classList.remove("move");
+    moveEdit_button.classList.add("edit");
+  } else {
+    moveEdit_button.classList.remove("edit");
+    moveEdit_button.classList.add("move");
   }
 }
-function loadPhrase(id) {
-  var p_name = document.getElementById('pname');
-  var p_trigger = document.getElementById('ptrigger');
-  var p_folder = document.getElementById('pfolder');
-  var p_text = document.getElementById('Phrase_Text').childNodes[0];
-  var phrase = document.getElementById('Phrase');
-  var save_button = document.getElementById('Save');
-  var id = id.split('-')[1];
-  p = JSON.parse(send2API(phrase_API + id.toString(), "GET"));
-  save_button.setAttribute('phrase_id',id)
-  p_name.value = p['name'];
-  p_trigger.value = p['cmd'];
-  p_text.innerHTML = p['phrase_html'];
-  phrase.style.display= "block";
+function checkPhrase(id, override=false) {
+  var dirtycount = document.querySelectorAll('[dirty="yes"]').length;
+  if (dirtycount > 0){
+    if (!override){
+      var modal = document.getElementById('ModalConatiner');
+      unsavedChangesDialog(modal);
+    } else {
+      savePhrase(id);
+      loadPhrase(id);
+    }
+  } else {loadPhrase(id)}
 }
 
 // New Folder Dialog
@@ -208,7 +254,7 @@ function moveDialog (modalConatiner){
         folder_id: info[1],
         parent_folder_id: pfolder
       });
-      send2API(folder_API, "POST", data);
+      send2API(folder_API+id.toString(), "POST", data);
       resetPhraseList();
     } else if (info[0] == "phrase") {
       data = JSON.stringify({
@@ -220,7 +266,46 @@ function moveDialog (modalConatiner){
   }
 }
 
-// Dialog functions
+// New Folder Dialog
+function editDialog (modalConatiner){
+  // Display Dialog
+  edit_HTML = '<div id="Edit_Dialog" class="ModalDialog">'
+  edit_HTML += '<span id="Edit_Dialog-close" class="close">&times;</span>'
+  edit_HTML += '<h2 id="Edit_Dialog-header">Edit Folder</h2>'
+  edit_HTML += '<div>'
+  edit_HTML += '<span>Folder Name: </span><input type="text" id="folder_name"></input><br/>'
+  edit_HTML += '<span>Parent Folder: </span><select id="edit-pfolder" name="pfolder"></select><br/>'
+  edit_HTML += '<button id="Edit_Dialog-ok">OK</button>'
+  edit_HTML += '</div></div>'
+  modalConatiner.innerHTML = edit_HTML;
+  var selected = document.querySelectorAll('[selected="yes"]')[0];
+  var folder_name = document.getElementById('folder_name');
+  folder_name.value = selected.innerText
+  resetFolderDropdown('edit-pfolder', selected.id.split('-')[1]);
+  modalConatiner.style.display = "block";
+  // Handle Dialog Elements
+  var edit_close_button = document.getElementById('Edit_Dialog-close');
+  edit_close_button.onclick = function() {
+    modalConatiner.style.display = "none";
+    modalConatiner.innerHTML = "";
+  }
+  var edit_ok_button = document.getElementById('Edit_Dialog-ok');
+  edit_ok_button.onclick = function() {
+    var folder_name = document.getElementById('folder_name').value;
+    var pfolder = document.getElementById('edit-pfolder').value;
+    modalConatiner.style.display = "none";
+    data = JSON.stringify({
+      folder_id: selected.id.split('-')[1],
+      name: folder_name,
+      parent_folder_id: pfolder
+    })
+    send2API(folder_API+id.toString(), "POST", data);
+    resetPhraseList();
+    modalConatiner.innerHTML = "";
+  }
+}
+
+// Remove Dialog
 function removeDialog (modalConatiner){
   // Get item
   var selection = document.querySelectorAll('[selected="yes"]')[0];
@@ -258,7 +343,7 @@ function removeDialog (modalConatiner){
     modalConatiner.style.display = "none";
     if (info[0] == "folder") {
       data = JSON.stringify({id: info[1]})
-      send2API(folder_API, "DELETE", data);
+      send2API(folder_API+id.toString(), "DELETE", data);
       resetPhraseList();
     } else if (info[0] == "phrase") {
       var p_name = document.getElementById('pname');
@@ -315,6 +400,42 @@ function settingsDialog (modalConatiner){
   }
 }
 
+// Unsaved Changes Dialog
+function unsavedChangesDialog (modalConatiner){
+  // Display Dialog
+  unsavedChanges_HTML = '<div id="unsavedChanges_Dialog" class="ModalDialog">'
+  unsavedChanges_HTML += '<span id="unsavedChanges_Dialog-close" class="close">&times;</span>'
+  unsavedChanges_HTML += '<h2 id="unsavedChanges_Dialog-header">Unsaved Changes</h2>'
+  unsavedChanges_HTML += '<div><span>Do you want to save your changes?</span>'
+  unsavedChanges_HTML += '<div><button id="unsavedChanges_Dialog-no">No</button>';
+  unsavedChanges_HTML += '<button id="unsavedChanges_Dialog-yes">Yes</button></div>';
+  unsavedChanges_HTML += '</div></div>';
+  modalConatiner.innerHTML = unsavedChanges_HTML;
+  var execution_key = document.getElementById('execution_key');
+  modalConatiner.style.display = "block";
+
+  // Handle Dialog Elements
+  var unsavedChanges_close = document.getElementById('unsavedChanges_Dialog-close');
+  unsavedChanges_close.onclick = function() {
+    modalConatiner.style.display = "none";
+    modalConatiner.innerHTML = "";
+  }
+  var unsavedChanges_no = document.getElementById('unsavedChanges_Dialog-no');
+  unsavedChanges_no.onclick = function() {
+    modalConatiner.style.display = "none";
+    modalConatiner.innerHTML = "";
+    var id = document.getElementById('Save').getAttribute('phrase_id');
+    loadPhrase(id)
+  }
+  var unsavedChanges_yes = document.getElementById('unsavedChanges_Dialog-yes');
+  unsavedChanges_yes.onclick = function() {
+    modalConatiner.style.display = "none";
+    modalConatiner.innerHTML = "";
+    var id = document.getElementById('Save').getAttribute('phrase_id');
+    checkPhrase(id, true)
+  }
+}
+
 // On Load setup
 window.addEventListener('load', function () {
   // Grab some need IDs
@@ -322,42 +443,39 @@ window.addEventListener('load', function () {
   var modal = document.getElementById('ModalConatiner');
   var newFolder_button = document.getElementById('New_Folder');
   var newPhrase_button = document.getElementById('New_Phrase');
-  var move_button = document.getElementById('Move');
+  var moveEdit_button = document.getElementById('MoveEdit');
   var remove_button = document.getElementById('Remove');
   var settings_button = document.getElementById('Settings');
   var save_button = document.getElementById('Save');
-
-  var selection = document.querySelectorAll('[selected="yes"]')
-  if (selection.length > 0) {
-    move_button.disabled=false;
-    move_button.classList.remove("disabled");
-    remove_button.disabled=false;
-    remove_button.classList.remove("disabled");
-  } else {
-    move_button.disabled=true;
-    move_button.classList.add("disabled");
-    remove_button.disabled=true;
-    remove_button.classList.add("disabled");
-  }
+  var phrase_name = document.getElementById('Phrase_Name');
+  var phrase_trigger = document.getElementById('Phrase_Trigger');
+  var p_name = document.getElementById('pname');
+  var p_trigger = document.getElementById('ptrigger');
 
   // On Click handlers
   newFolder_button.onclick = function() {newFolder(modal);}
   newPhrase_button.onclick = function() {newPhrase(modal);}
-  move_button.onclick = function() {moveDialog(modal);}
+  moveEdit_button.onclick = function() {
+    if (moveEdit_button.classList=="move"){
+      moveDialog(modal);
+    } else if (moveEdit_button.classList=="edit") {
+      editDialog(modal);
+    }
+  }
   remove_button.onclick = function() {removeDialog(modal);}
   settings_button.onclick = function() {settingsDialog(modal);}
   save_button.onclick = function() {
-    var p_name = document.getElementById('pname');
-    var p_trigger = document.getElementById('ptrigger');
-    var p_text = document.getElementById('Phrase_Text').childNodes[0];
-    var id = save_button.getAttribute('phrase_id')
-    data = JSON.stringify({
-      name: p_name.value,
-      cmd: p_trigger.value,
-      phrase_html: p_text.innerHTML,
-      phrase_text: p_text.innerText
-    })
-    send2API(phrase_API+id.toString(), "POST", data);
-    resetPhraseList()
+    var id = save_button.getAttribute('phrase_id');
+    savePhrase(id)
   }
+  // Change handlers
+  p_name.onchange = function() {phrase_name.setAttribute('dirty','yes')}
+  p_trigger.onchange = function() {phrase_trigger.setAttribute('dirty','yes')}
+
+  quill.on('text-change', function(delta, oldDelta, source) {
+    var p_text = document.getElementById('Phrase_Text');
+    if (p_text.getAttribute('dirty')!="loading"){
+        p_text.setAttribute('dirty','yes');
+    }
+  });
 });

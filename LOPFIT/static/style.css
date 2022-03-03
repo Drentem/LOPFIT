@@ -58,7 +58,9 @@ body {
   height: 30px;
 }
 #New_Folder_Dialog input,
+#Edit_Dialog input,
 #Move_Dialog input,
+#Edit_Dialog select,
 #New_Folder_Dialog select,
 #Move_Dialog select,
 #New_Phrase_Dialog select,
@@ -66,6 +68,7 @@ body {
   margin-bottom: 10px;
   width: 190px;
 }
+#Edit_Dialog,
 #New_Folder_Dialog {
   height: 160px;
   width: 300px;
@@ -162,7 +165,7 @@ body {
 }
 #New_Phrase span:before,
 #New_Folder span:before,
-#Move span:before,
+#MoveEdit span:before,
 #Remove span:before,
 #Save span:before,
 #Settings span:before {
@@ -173,7 +176,8 @@ body {
 }
 #New_Phrase span:before {content: "\f15c";}
 #New_Folder span:before {content: "\f65e";}
-#Move span:before {content: "\f074";}
+#MoveEdit.move span:before {content: "\f074";}
+#MoveEdit.edit span:before {content: "\f303";}
 #Remove span:before {content: "\f2ed";}
 #Settings span:before {content: "\f085";}
 #Save {
