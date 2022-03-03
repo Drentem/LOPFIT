@@ -10,7 +10,7 @@
 #     from richxerox import paste
 # finally:
 from flask import Flask, render_template, request, jsonify
-from LOPFIT.daKeyboards import KB
+# from LOPFIT.daKeyboards import KB
 from LOPFIT.DB import Phrases, Folders, Settings, db
 
 dbfile = 'sqlite:///LOPFIT.db'
@@ -127,5 +127,11 @@ def create_app():
             value = Settings.query_setting(SETTING)
             ret = {"value": value}
         return jsonify(ret)
+
+    @app.route('/focus/', methods=["POST"])
+    def focus():
+        data = request.get_json()
+        print(data['focus'])
+        return {"focus": data['focus']}
 
     return app

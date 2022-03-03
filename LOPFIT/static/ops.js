@@ -1,10 +1,11 @@
 var folder_API = "/folder/"
 var phrase_API = "/phrase/"
 var config_API = "/config/"
+var focus_API = "/focus/"
+var quill_undo_save_point = 0
 
 // API functions
 function send2API (endpoint, method, data) {
-  console.log(data)
   var xhr = new XMLHttpRequest();
   xhr.open(method, endpoint, false);
   if (data) {xhr.setRequestHeader('Content-Type', 'application/json');};
@@ -26,9 +27,14 @@ function savePhrase(id) {
     phrase_text: p_text.innerText
   });
   send2API(phrase_API+id.toString(), "POST", data);
-
+  var dirty = document.querySelectorAll('[dirty="yes"]');
+  for (let i = 0; i < dirty.length; i++){
+    dirty[i].setAttribute('dirty','no')
+  }
   var phrases_name = document.getElementById('phrase-'+id.toString());
   phrases_name.innerText=p_name.value;
+  quill_undo_save_point = quill.history.undo.length
+  console.log(quill_undo_save_point)
 }
 function loadPhrase(id){
   var p_name = document.getElementById('pname');
@@ -476,8 +482,22 @@ window.addEventListener('load', function () {
 
   quill.on('text-change', function(delta, oldDelta, source) {
     var p_text = document.getElementById('Phrase_Text');
-    if (p_text.getAttribute('dirty')!="loading"){
-        p_text.setAttribute('dirty','yes');
+    console.log(quill_undo_save_point)
+    console.log(quill.history.stack.undo.length)
+    if (p_text.getAttribute('dirty')=="loading"){
+      quill.history.clear();
+    }else if (quill.history.stack.undo.length == quill_undo_save_point){
+
+      p_text.setAttribute('dirty','no');
+    } else {
+      p_text.setAttribute('dirty','yes');
     }
   });
+  document. addEventListener('visibilitychange', function() {
+    if(document. hidden) data = JSON.stringify({focus:false});
+    else data = JSON.stringify({focus:true});
+    send2API(focus_API, "POST", data);
+  });
+  data = JSON.stringify({focus:true});
+  send2API(focus_API, "POST", data);
 });
