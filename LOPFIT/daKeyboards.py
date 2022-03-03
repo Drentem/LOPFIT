@@ -1,14 +1,17 @@
 from pynput.keyboard import Controller
 from pynput import keyboard
-from flask import current_app
 from LOPFIT.ext import db
 from sys import platform
+import time
 if platform == "linux" or platform == "linux2":  # Linux
-    print("Linux")
-elif platform == "darwin":  # MacOS
+    this = "nothing yet"
+    # TODO: Need to find a Linux handler
+elif platform in ['Mac', 'darwin', 'os2', 'os2emx']:  # MacOS
+    from AppKit import NSWorkspace
     from richxerox import copy, paste
-elif platform == "win32":  # Windows
-    print("Windows")
+elif platform in ['Windows', 'win32', 'cygwin']:  # Windows
+    import win32gui
+
 
 kb = Controller()
 
@@ -57,3 +60,7 @@ class KB(object):
                             code = []
                     else:
                         code.append(event.key.char)
+
+
+with keyboard.Events() as events:
+    active_window_name = (NSWorkspace.sharedWorkspace().activeApplication()['NSApplicationName'])
