@@ -1,7 +1,8 @@
-from pynput.keyboard import Controller, Listener, Key, HotKey
-from pynput.mouse import Listener as M_Listener
+from pynput.keyboard import Controller, Key, HotKey, Events as KB_Events
+from pynput.mouse import Events as M_Events
 from flask import _app_ctx_stack
 from time import sleep
+from threading import Thread
 
 from sys import platform
 if platform == "linux" or platform == "linux2":  # Linux
@@ -22,15 +23,6 @@ elif platform in ['Windows', 'win32', 'cygwin']:  # Windows
 
 terminate_keys.extend([Key.space, Key.tab, Key.enter])
 
-# May need to replace the listener with this to give a proper
-# with keyboard.Events() as events:
-#     # Block at most one second
-#     event = events.get(1.0)
-#     if event is None:
-#         print('You did not press a key within one second')
-#     else:
-#         print('Received event {}'.format(event))
-
 
 class KB(object):
     def __init__(self, app=None, Phrases=None):
@@ -40,8 +32,10 @@ class KB(object):
         self.kb = Controller()
         self.code = []
         self.CP = Clipboard()
-        self.listener = Listener(on_press=self.__Listener_Check)
-        self.m_listener = M_Listener(on_click=self.__on_click)
+        self.paused = False
+        self.exit = False
+        self.mouse_thread = Thread(target=self.__Mouse_Thread)
+        self.keyboard_thread = Thread(target=self.__Keyboard_Thread)
         if app is not None:
             self.init_app(app, Phrases)
         self.__start()
@@ -57,68 +51,59 @@ class KB(object):
             ctx.sqlite3_db.close()
 
     def __execute(self):
-        if not self.inGUI:
-            with self.app.app_context():
-                phrase = self.phrases.check_cmd(''.join(self.code))
-                print(phrase)
-            if phrase:
-                for i in range(0, len(self.code)+1):
-                    self.kb.tap(Key.backspace)
-                self.CP.borrow(
-                    html=phrase['html'],
-                    text=phrase['text'])
-                self.kb.press(paste_keys[0])
-                self.kb.tap(paste_keys[1])
-                self.kb.release(paste_keys[0])
-                sleep(0.1)
-                self.CP.giveBack()
+        with self.app.app_context():
+            phrase = self.phrases.check_cmd(''.join(self.code))
+        if phrase:
+            for i in range(0, len(self.code)+1):
+                self.kb.tap(Key.backspace)
+            self.CP.borrow(
+                html=phrase['html'],
+                text=phrase['text'])
+            self.kb.press(paste_keys[0])
+            self.kb.tap(paste_keys[1])
+            self.kb.release(paste_keys[0])
+            sleep(0.1)
+            self.CP.giveBack()
         self.__reset()
 
-    def __Listener_Check(self, key):
-        self.code = list(filter(None, self.code))
-        if hasattr(key, 'char'):
-            if key.char in terminate_keys:
-                self.__execute()
-            else:
-                self.code.append(key.char)
-        else:
-            if key in terminate_keys:
-                self.__execute()
-            elif key == Key.backspace:
-                if len(self.code) > 0:
-                    self.code.pop()
+    def __Keyboard_Thread(self):
+        with KB_Events() as events:
+            for event in events:
+                if not self.inGUI and not self.paused:
+                    self.code = list(filter(None, self.code))
+                    if isinstance(event, KB_Events.Press):
+                        if hasattr(event.key, 'char'):
+                            if event.key.char in terminate_keys:
+                                self.__execute()
+                            else:
+                                self.code.append(event.key.char)
+                        else:
+                            if event.key in terminate_keys:
+                                self.__execute()
+                            elif event.key == Key.backspace:
+                                if len(self.code) > 0:
+                                    self.code.pop()
+                else:
+                    self.__reset()
+                if self.exit:
+                    break
 
-    def __on_click(self, x, y, button, pressed):
-        if pressed:
-            self.__reset()
+    def __Mouse_Thread(self):
+        with M_Events() as events:
+            for event in events:
+                if not self.inGUI and not self.paused:
+                    if isinstance(event, M_Events.Click):
+                        self.__reset()
 
     def __reset(self):
         self.code.clear()
 
     def __start(self):
-        while not self.m_listener.running and not self.listener.running:
-            # try:
-            if not self.m_listener.running:
-                try:
-                    self.m_listener.start()
-                except Exception:
-                    print("Keyboard bad start")
-            if not self.listener.running:
-                try:
-                    self.listener.start()
-                except Exception:
-                    print("Keyboard bad start")
-            # self.listener.join()
-            # except Exception:
-            #     sleep(0.1)
-
-    def __stop(self):
-        self.listener.stop()
-        self.listener = Listener(on_press=self.__Listener_Check)
+        self.mouse_thread.start()
+        self.keyboard_thread.start()
 
     def guiStatus(self, status=False):
         self.inGUI = status
-        print(self.inGUI)
 
 
 if __name__ == '__main__':
