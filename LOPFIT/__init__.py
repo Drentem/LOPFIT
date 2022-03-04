@@ -1,17 +1,7 @@
-# try:
-#     from flask import Flask, render_template, request, jsonify
-# except Exception:
-#     import subprocess
-#     import sys
-#
-#     subprocess.check_call(
-#         [sys.executable, "-m", "pip", "install", 'flask'])
-#     from flask import Flask, render_template, request, jsonify
-#     from richxerox import paste
-# finally:
+
 from flask import Flask, render_template, request, jsonify
-# from LOPFIT.daKeyboards import KB
 from LOPFIT.DB import Phrases, Folders, Settings, db
+from LOPFIT.keysHandler import KB
 
 dbfile = 'sqlite:///LOPFIT.db'
 
@@ -20,7 +10,9 @@ def create_app():
     app = Flask(__name__)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SQLALCHEMY_DATABASE_URI"] = dbfile
+    kb = KB(app, Phrases)
     db.init_app(app)
+
     with app.app_context():
         db.create_all()
         Settings.init()
@@ -74,8 +66,7 @@ def create_app():
                 cmd=data['cmd'],
                 folder_id=data['folder_id']
             )
-            db.session.add(phrase)
-            db.session.commit()
+            Phrases.add(phrase)
             ret = {
                 "phrase_added": True,
                 "cmd": data['cmd'],
@@ -97,13 +88,14 @@ def create_app():
             if 'folder_id' in data:
                 phrase.folder_id = data['folder_id']
             if 'phrase_text' in data:
-                phrase.phrase_text = data['phrase_text'].encode()
+                phrase.phrase_text = "<meta charset='utf-8'>" + \
+                    data['phrase_text'].encode()
                 phrase.phrase_html = data['phrase_html'].encode()
             phrase.commit()
             ret = {"phrase_updated": True}
         elif request.method == "DELETE":
             Phrases.remove(ID)
-            db.session.commit()
+            Phrases.commit()
             ret = {"folder_removed": True}
         elif request.method == 'GET':
             phrase = Phrases.query_id(ID)
@@ -131,7 +123,6 @@ def create_app():
     @app.route('/focus/', methods=["POST"])
     def focus():
         data = request.get_json()
-        print(data['focus'])
+        kb.guiStatus(data['focus'])
         return {"focus": data['focus']}
-
     return app
