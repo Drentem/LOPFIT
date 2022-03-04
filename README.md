@@ -14,7 +14,7 @@
       - [ ] Replace temp var back to clipboard (as if we never borrowed it)w
       - [ ] Listener needs to detect and ignore password boxes
   - [x] MacOS
-- [ ] Integrate with GUI/DB
+- [x] Integrate with GUI/DB
 
 
 #### Frontend (GUI)
@@ -29,3 +29,4 @@
   - Could just consider it dirty after ANY change regardless if undo returned it back to normal
 - [ ] Need to fix major latency issues
   - Too much input silently spiking CPU?
+- [ ] HTML pasting isn't working as expected. Not sure the issue here.
