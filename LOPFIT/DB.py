@@ -108,10 +108,9 @@ class Phrases(db.Model, Common):
     @ classmethod
     def get_cmds(cls):
         query = cls.query.all()
-        cmds = []
+        cmds = {}
         for item in query:
-            i = item.phrase_id, item.cmd
-            cmds.append(i)
+            cmds[item.cmd] = item.phrase_id
         return cmds
 
     @ classmethod
@@ -124,8 +123,12 @@ class Phrases(db.Model, Common):
     @ classmethod
     def check_cmd(cls, cmd):
         query = cls.query.filter(cls.cmd == cmd).first()
+        query = {
+            'text': query.phrase_text.decode(),
+            'html': query.phrase_html.decode()
+        }
         if query:
-            return True
+            return query
         else:
             return False
 

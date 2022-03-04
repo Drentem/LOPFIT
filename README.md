@@ -4,8 +4,6 @@
 - [ ] Thread out the listener from the GUI (threading module is built into python)
   - [ ] Need listener to identify what program/tab it was in. If new, reset check.
     - [x] Need listener to identify if it is in the LOPFIT tab. If so, disable until out of tab. (Handled through the frontend actually)
-
-    - [ ] Listener needs to detect when moving from one box to another (Selenium?)
 - [ ] OS Specific handlers
   - [ ] Windows
     - [ ] Clipboard
@@ -13,11 +11,10 @@
       - [ ] Copy phrase to clipboard
       - [ ] Add TODO block for future form handling
       - [ ] Paste phrase to current keyboard location (Possibly via CTRL-V)
-      - [ ] Replace temp var back to clipboard (as if we never borrowed it)
+      - [ ] Replace temp var back to clipboard (as if we never borrowed it)w
       - [ ] Listener needs to detect and ignore password boxes
-  - [ ] MacOS
-    - [x] Clipboard
-- [ ] Integrate with GUI
+  - [x] MacOS
+- [ ] Integrate with GUI/DB
 
 
 #### Frontend (GUI)
@@ -30,3 +27,5 @@
 #### Bugs needing worked
 - [ ] Knowing when the form is dirty after saving
   - Could just consider it dirty after ANY change regardless if undo returned it back to normal
+- [ ] Need to fix major latency issues
+  - Too much input silently spiking CPU?

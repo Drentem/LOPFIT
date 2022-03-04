@@ -5,9 +5,9 @@ var focus_API = "/focus/"
 var quill_undo_save_point = 0
 
 // API functions
-function send2API (endpoint, method, data) {
+function send2API (endpoint, method, data, sync=false) {
   var xhr = new XMLHttpRequest();
-  xhr.open(method, endpoint, false);
+  xhr.open(method, endpoint, sync);
   if (data) {xhr.setRequestHeader('Content-Type', 'application/json');};
   xhr.send(data);
   if (xhr.readyState === 4) {
@@ -493,11 +493,24 @@ window.addEventListener('load', function () {
       p_text.setAttribute('dirty','yes');
     }
   });
-  document. addEventListener('visibilitychange', function() {
+  document.addEventListener('visibilitychange', function() {
     if(document. hidden) data = JSON.stringify({focus:false});
     else data = JSON.stringify({focus:true});
-    send2API(focus_API, "POST", data);
+    send2API(focus_API, "POST", data, true);
   });
+
   data = JSON.stringify({focus:true});
-  send2API(focus_API, "POST", data);
+  send2API(focus_API, "POST", data, true);
+});
+document.addEventListener("readystatechange", function(){
+  data = JSON.stringify({focus:false});
+  send2API(focus_API, "POST", data, true);
+});
+window.addEventListener('blur', function(){
+  data = JSON.stringify({focus:false});
+  send2API(focus_API, "POST", data, true);
+});
+window.addEventListener('focus', function(){
+  data = JSON.stringify({focus:true});
+  send2API(focus_API, "POST", data, true);
 });
