@@ -1,4 +1,4 @@
-# from pynput.keyboard import Controller, Key, HotKey, Events as KB_Events
+# This module is shared code between OSs
 import keyboard
 from keyboard import KeyboardEvent
 from pynput.mouse import Events as M_Events
@@ -8,8 +8,8 @@ from threading import Thread
 from sys import platform
 
 if platform == "linux" or platform == "linux2":  # Linux
-    this = "nothing yet"
-    # from LOPFIT.OS_Specific import db
+    print("This OS is not supported.")
+    exit()
 elif platform in ['Mac', 'darwin', 'os2', 'os2emx']:  # MacOS
     from LOPFIT.OS_Specific._MacOS import Clipboard  # , Window  (Macros)
     paste_keys = "cmd+v"
@@ -23,6 +23,7 @@ backspace = [KeyboardEvent(event_type='down', name='backspace', scan_code=14),
 
 
 class KB(object):
+    # Required for integrating with Flask and the database
     def __init__(self, app=None, Phrases=None):
         self.app = app
         self.inGUI = False
@@ -30,9 +31,10 @@ class KB(object):
         self.code = []
         self.CP = Clipboard()
         self.paused = False
-        self.exit = False
         self.mouse_thread = Thread(target=self.__Mouse_Thread)
+        self.mouse_thread.setDaemon(True)
         self.keyboard_thread = Thread(target=self.__Keyboard_Thread)
+        self.keyboard_thread.setDaemon(True)
         if app is not None:
             self.init_app(app, Phrases)
         self.__start()
@@ -47,9 +49,12 @@ class KB(object):
         if hasattr(ctx, 'sqlite3_db'):
             ctx.sqlite3_db.close()
 
+    # Code
     def __execute(self):
+        self.paused = True
         with self.app.app_context():
             phrase = self.phrases.check_cmd(''.join(self.code))
+            print(phrase)
         if phrase:
             clearing = []
             for i in range(len(self.code)+1):
@@ -58,18 +63,15 @@ class KB(object):
             self.CP.borrow(
                 html=phrase['html'],
                 text=phrase['text'])
-            self.kb.press(paste_keys[0])
-            self.kb.tap(paste_keys[1])
-            self.kb.release(paste_keys[0])
+            self.kb.send(paste_keys)
             sleep(0.1)
             self.CP.giveBack()
         keyboard.unhook_all()
         self.__reset()
+        self.paused = False
 
     def __Keyboard_Thread(self):
         while True:
-            if self.exit:
-                break
             # self.code = list(filter(None, self.code))
             if not self.inGUI and not self.paused:
                 event = keyboard.read_event()
