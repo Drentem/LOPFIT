@@ -1,5 +1,6 @@
 from pystray import Icon, Menu, MenuItem
 from PIL import Image
+import requests
 import os
 import webbrowser
 
@@ -9,6 +10,9 @@ def create_icon(root_path):
         webbrowser.open('http://localhost:5050', new=2)
 
     def __tray_Exit():
+        url = 'http://localhost:5050/shutdown'
+        data = {'are_you_sure': True}
+        requests.post(url, json=data)
         icon.stop()
 
     image = Image.open(

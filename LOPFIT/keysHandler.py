@@ -4,7 +4,7 @@ from keyboard import KeyboardEvent
 from pynput.mouse import Events as M_Events
 from flask import _app_ctx_stack
 from time import sleep
-from threading import Thread
+import threading
 from sys import platform
 
 if platform == "linux" or platform == "linux2":  # Linux
@@ -25,16 +25,21 @@ backspace = [KeyboardEvent(event_type='down', name='backspace', scan_code=14),
 class KB(object):
     # Required for integrating with Flask and the database
     def __init__(self, app=None, Phrases=None):
+        # Flask related variables
         self.app = app
-        self.inGUI = False
         self.phrases = Phrases
-        self.code = []
+
+        # OS related variables
         self.CP = Clipboard()
-        self.paused = False
-        self.mouse_thread = Thread(target=self.__Mouse_Thread)
-        self.mouse_thread.setDaemon(True)
-        self.keyboard_thread = Thread(target=self.__Keyboard_Thread)
-        self.keyboard_thread.setDaemon(True)
+
+        # Keyboard and mouse event monitoring
+        self.mouse_thread = threading.Thread(target=self.__Mouse_Thread)
+        self.mouse_thread.daemon = True
+        self.keyboard_thread = threading.Thread(target=self.__Keyboard_Thread)
+        self.keyboard_thread.daemon = True
+
+        # Data gathering variable
+        self.phrase_cmd = []
         if app is not None:
             self.init_app(app, Phrases)
         self.__start()
@@ -51,13 +56,11 @@ class KB(object):
 
     # Code
     def __execute(self):
-        self.paused = True
         with self.app.app_context():
-            phrase = self.phrases.check_cmd(''.join(self.code))
-            print(phrase)
+            phrase = self.phrases.check_cmd(''.join(self.phrase_cmd))
         if phrase:
             clearing = []
-            for i in range(len(self.code)+1):
+            for i in range(len(self.phrase_cmd)+1):
                 clearing.extend(backspace)
             keyboard.play(clearing)
             self.CP.borrow(
@@ -68,40 +71,54 @@ class KB(object):
             self.CP.giveBack()
         keyboard.unhook_all()
         self.__reset()
-        self.paused = False
 
     def __Keyboard_Thread(self):
-        while True:
-            # self.code = list(filter(None, self.code))
-            if not self.inGUI and not self.paused:
-                event = keyboard.read_event()
-                if event.event_type == keyboard.KEY_DOWN:
-                    if event.name in terminate_keys:
-                        self.__execute()
-                    elif event.name == 'backspace':
-                        if len(self.code) > 0:
-                            self.code.pop()
-                    else:
-                        self.code.append(event.name)
-            else:
-                self.__reset()
+        t = threading.current_thread()
+        while getattr(t, "exit", False):
+            # self.phrase_cmd = list(filter(None, self.phrase_cmd))
+            event = keyboard.read_event()
+            if event.event_type == keyboard.KEY_DOWN:
+                print(getattr(t, "exit", False))
+                if event.name in terminate_keys:
+                    self.__execute()
+                elif event.name == 'backspace':
+                    if len(self.phrase_cmd) > 0:
+                        self.phrase_cmd.pop()
+                else:
+                    self.phrase_cmd.append(event.name)
+                print(self.phrase_cmd)
 
     def __Mouse_Thread(self):
+        t = threading.current_thread()
         with M_Events() as events:
             for event in events:
-                if not self.inGUI and not self.paused:
+                while getattr(t, "exit", False):
                     if isinstance(event, M_Events.Click):
                         self.__reset()
 
     def __reset(self):
-        self.code.clear()
+        keyboard.unhook_all()
+        self.phrase_cmd.clear()
 
     def __start(self):
         self.mouse_thread.start()
         self.keyboard_thread.start()
 
-    def guiStatus(self, status=False):
-        self.inGUI = status
+    def guiStatus(self, inGUI=False):
+        if inGUI:
+            keyboard.unhook_all()
+            self.mouse_thread.exit = True
+            self.keyboard_thread.exit = True
+            self.__reset()
+        else:
+            try:
+                self.mouse_thread.start()
+            except Exception:
+                print("Mouse thread still running")
+            try:
+                self.keyboard_thread.start()
+            except Exception:
+                print("Keyboard thread still running")
 
 
 if __name__ == '__main__':
