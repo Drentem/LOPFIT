@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, jsonify
 from LOPFIT.DB import Phrases, Folders, Settings, db
 from LOPFIT.keysHandler import KB
@@ -10,9 +9,8 @@ def create_app():
     app = Flask(__name__)
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SQLALCHEMY_DATABASE_URI"] = dbfile
-    kb = KB(app, Phrases)
     db.init_app(app)
-
+    kb = KB(app, Phrases)
     with app.app_context():
         db.create_all()
         Settings.init()
@@ -88,9 +86,9 @@ def create_app():
             if 'folder_id' in data:
                 phrase.folder_id = data['folder_id']
             if 'phrase_text' in data:
-                phrase.phrase_text = "<meta charset='utf-8'>" + \
-                    data['phrase_text'].encode()
-                phrase.phrase_html = data['phrase_html'].encode()
+                phrase.phrase_text = data['phrase_text'].encode()
+                phrase.phrase_html = ("<meta charset='utf-8'>"
+                                      + data['phrase_html']).encode()
             phrase.commit()
             ret = {"phrase_updated": True}
         elif request.method == "DELETE":
@@ -125,4 +123,20 @@ def create_app():
         data = request.get_json()
         kb.guiStatus(data['focus'])
         return {"focus": data['focus']}
+
+    def shutdown_server():
+        func = request.environ.get('werkzeug.server.shutdown')
+        if func is None:
+            raise RuntimeError('Not running with the Werkzeug Server')
+        func()
+
+    @app.route('/shutdown', methods=['POST'])
+    def shutdown():
+        data = request.get_json()
+        if data['are_you_sure']:
+            shutdown_server()
+            return 'Server shutting down...'
+        else:
+            return False
+
     return app
