@@ -123,11 +123,11 @@ class Phrases(db.Model, Common):
     @ classmethod
     def check_cmd(cls, cmd):
         query = cls.query.filter(cls.cmd == cmd).first()
-        query = {
-            'text': query.phrase_text.decode(),
-            'html': query.phrase_html.decode()
-        }
         if query:
+            query = {
+                'text': query.phrase_text.decode(),
+                'html': query.phrase_html.decode()
+            }
             return query
         else:
             return False
