@@ -1,10 +1,9 @@
 from AppKit import NSWorkspace
-from richxerox import copy as cp, paste as ps, available
+from richxerox import copy, pasteall
 from subprocess import check_output
 import re
 
 commands = {
-    'rtf': ['/usr/bin/textutil', '-convert', 'rtf', '-stdin', '-stdout'],
     'secure_input': ['ioreg', '-alw', '0']
 }
 
@@ -12,23 +11,19 @@ commands = {
 class Clipboard:
     def __init__(self):
         self.temp_clipboard = {}
-        self.types = 0
 
     def __storeUserClipboard(self):
-        for i in available():
-            self.temp_clipboard[i] = pasteall()
-            print(self.temp_clipboard)
+        self.temp_clipboard = pasteall()
 
     def __restoreUserClipboard(self):
-        # cp(**self.temp_clipboard)
-        self.types = 0
+        copy(**self.temp_clipboard)
         self.temp_clipboard = None
         self.temp_clipboard = {}
 
     def borrow(self, html="", text=""):
         self.__storeUserClipboard()
         # TODO: Add Macro Handling
-        cp(text=text, html=html)
+        copy(text=text, html=html)
 
     def giveBack(self):
         self.__restoreUserClipboard()
