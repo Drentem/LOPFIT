@@ -104,8 +104,9 @@ class KB(object):
         self.phrase_cmd.clear()
 
     def __start(self):
-        self.mouse_thread.start()
-        self.keyboard_thread.start()
+        # self.mouse_thread.start()
+        # self.keyboard_thread.start()
+        print("Not loading yet")
 
     def guiStatus(self, inGUI=False):
         if inGUI:

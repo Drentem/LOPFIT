@@ -5,12 +5,29 @@ from LOPFIT.misc.logs import loggers
 class Common():
     @classmethod
     def query_all(cls):
-        return cls.query.all()
+        object_type = type(cls)
+        try:
+            query = cls.query.all()
+            loggers['database'].debug(
+                f'Retrieved all {object_type}s from the database.')
+            return query
+        except Exception:
+            loggers['database'].exception(
+                f'Failed to add {object_type} to the database. Error details:'
+            )
 
     def add(self):
-        db.session.add(self)
-        db.session.commit()
-        return True
+        object_type = type(self)
+        try:
+            db.session.add(self)
+            db.session.commit()
+            return True
+            loggers['database'].debug(
+                f'Added {object_type} to the database.')
+        except Exception:
+            loggers['database'].exception(
+                f'Failed to add {object_type} to the database. Error details:'
+            )
 
     @classmethod
     def commit(cls):
@@ -40,12 +57,12 @@ class Settings(db.Model, Common):
                                           f'     Value: {value}'
                                           )
             loggers['database'].info('Initilizing database COMPLETE')
-        except Exception as e:
+        except Exception:
             loggers['database'].exception(
                 'Failed to initilize the database. Error details:'
             )
 
-    @ classmethod
+    @classmethod
     def query_setting(cls, setting):
         try:
             value = cls.query.filter(cls.setting == setting).one().value
@@ -54,14 +71,14 @@ class Settings(db.Model, Common):
                                       f'     Value: {value}'
                                       )
             return value
-        except Exception as e:
+        except Exception:
             loggers['database'].exception(
                 'Failed to retrieve setting from database:\n'
                 f'     Setting: {setting}\n'
                 'Error details:'
             )
 
-    @ classmethod
+    @classmethod
     def update(cls, setting, value):
         try:
             query = cls.query.filter(cls.setting == setting).one()
@@ -71,7 +88,7 @@ class Settings(db.Model, Common):
                                       f'     Setting: {setting}\n'
                                       f'     Value: {value}'
                                       )
-        except Exception as e:
+        except Exception:
             loggers['database'].exception(
                 'Failed to update setting in database:\n'
                 f'     Setting: {setting}\n'
@@ -93,7 +110,7 @@ class Phrases(db.Model, Common):
     def __repr__(self):
         return '<Phrase %r>' % self.phrase_id
 
-    @ classmethod
+    @classmethod
     def query_id(cls, phrase_id):
         try:
             phrase = cls.query.filter(cls.phrase_id == phrase_id).one()
@@ -103,101 +120,167 @@ class Phrases(db.Model, Common):
                                       f'     Command: {phrase.cmd}'
                                       )
             return phrase
-        except Exception as e:
+        except Exception:
             loggers['database'].exception(
                 'Failed to retrieve a phrase from the database:\n'
                 f'     Phrase ID: {phrase_id}\n'
                 'Error details:'
             )
 
-    @ classmethod
+    @classmethod
     def get_phrases(cls):
-        query = cls.query.order_by(cls.folder_id, cls.name).all()
-        phrases_raw = {}
-        for i in query:
-            if i.folder_id not in phrases_raw.keys():
-                phrases_raw[i.folder_id] = []
-            phrases_raw[i.folder_id].append(
-                {"id": i.phrase_id, "name": i.name})
-        return phrases_raw
+        try:
+            query = cls.query.order_by(cls.folder_id, cls.name).all()
+            phrases_raw = {}
+            for i in query:
+                if i.folder_id not in phrases_raw.keys():
+                    phrases_raw[i.folder_id] = []
+                phrases_raw[i.folder_id].append(
+                    {"id": i.phrase_id, "name": i.name})
+            loggers['database'].debug(
+                'Phrase information gathered from the database')
+            return phrases_raw
+        except Exception:
+            loggers['database'].exception(
+                'Failed to retrieve phrases from the database')
 
     @classmethod
     def get_phrase_list_html(cls):
-        folders_raw = Folders.get_folders()
-        phrases_raw = Phrases.get_phrases()
-        html_list = []
+        try:
+            folders_raw = Folders.get_folders()
+            phrases_raw = Phrases.get_phrases()
+            html_list = []
 
-        def processing(id):
-            if id in folders_raw:
-                for item in folders_raw[id]:
-                    html_list.append(
-                        "<li role='treeitem' aria-expanded='false' " +
-                        "selected='no' id='folder-" + str(item['id']) +
-                        "'><span>" + item['name'] + "</span>")
-                    html_list.append("<ul role='group'>")
-                    if item['id'] in folders_raw:
-                        processing(item['id'])
-                    if item['id'] in phrases_raw:
-                        for phrase in phrases_raw[item['id']]:
-                            html_list.append(
-                                "<li role='treeitem' class='doc' id='phrase-" +
-                                str(phrase['id']) + "'>" +
-                                phrase['name'] + '</li>')
-                    html_list.append('</ul>')
-                    html_list.append('</li>')
-            if id == 0 and id in phrases_raw:
-                for phrase in phrases_raw[id]:
-                    html_list.append(
-                        "<li role='treeitem' class='doc' id='phrase-" +
-                        str(phrase['id']) + "'>" +
-                        phrase['name'] + '</li>')
+            def processing(id):
+                if id in folders_raw:
+                    for item in folders_raw[id]:
+                        html_list.append(
+                            "<li role='treeitem' aria-expanded='false' " +
+                            "selected='no' id='folder-" + str(item['id']) +
+                            "'><span>" + item['name'] + "</span>")
+                        html_list.append("<ul role='group'>")
+                        if item['id'] in folders_raw:
+                            processing(item['id'])
+                        if item['id'] in phrases_raw:
+                            for phrase in phrases_raw[item['id']]:
+                                html_list.append(
+                                    "<li role='treeitem' class='doc'"
+                                    " id='phrase-" +
+                                    str(phrase['id']) + "'>" +
+                                    phrase['name'] + '</li>')
+                        html_list.append('</ul>')
+                        html_list.append('</li>')
+                if id == 0 and id in phrases_raw:
+                    for phrase in phrases_raw[id]:
+                        html_list.append(
+                            "<li role='treeitem' class='doc' id='phrase-" +
+                            str(phrase['id']) + "'>" +
+                            phrase['name'] + '</li>')
 
-        if len(folders_raw) > 0:
-            processing(0)
-        return ''.join(html_list)
+            if len(folders_raw) > 0:
+                processing(0)
+            loggers['database'].debug('Converted folders and phrases'
+                                      ' from the database to HTML format')
+            return ''.join(html_list)
+        except Exception:
+            loggers['database'].exception(
+                'Failed to convert folders and phrases'
+                ' from the database to HTML format')
 
-    @ classmethod
-    def get_cmds(cls):
-        query = cls.query.all()
-        cmds = {}
-        for item in query:
-            cmds[item.cmd] = item.phrase_id
-        return cmds
-
-    @ classmethod
+    @classmethod
     def get_phrase(cls, phrase_id):
         try:
+            loggers['database'].debug(
+                'Retrieved a phrase from the database:\n'
+                f'     Phrase ID: {phrase_id}'
+            )
             return cls.query.filter(cls.phrase_id == phrase_id).one().phrase
         except Exception:
+            loggers['database'].exception(
+                'Failed to retrieve a phrase from the database:\n'
+                f'     Phrase ID: {phrase_id}\n'
+                'Error details:'
+            )
             return False
 
-    @ classmethod
+    @classmethod
     def check_cmd(cls, cmd):
-        query = cls.query.filter(cls.cmd == cmd).first()
-        if query:
-            query = {
-                'text': query.phrase_text.decode(),
-                'html': query.phrase_html.decode()
-            }
-            return query
-        else:
+        try:
+            query = cls.query.filter(cls.cmd == cmd).first()
+            if query:
+                query = {
+                    'text': query.phrase_text.decode(),
+                    'html': query.phrase_html.decode()
+                }
+                loggers['database'].debug(
+                    'Phrase command succeeded to retrieve a phrase'
+                    'from the database:\n'
+                    f'     Command: {cmd}'
+                )
+                return query
+            else:
+                loggers['database'].debug(
+                    'Phrase command does not exist in the database:\n'
+                    f'     Command: {cmd}'
+                )
+                return False
+        except Exception:
+            loggers['database'].exception(
+                'Failed to retrieve a phrase from the database:\n'
+                f'     Command: {cmd}\n'
+                'Error details:'
+            )
             return False
 
-    @ classmethod
+    @classmethod
     def remove(cls, phrase_id):
-        query = cls.query.filter(cls.phrase_id == phrase_id).one()
-        db.session.delete(query)
-        db.session.commit()
-        return True
+        try:
+            query = cls.query.filter(cls.phrase_id == phrase_id).one()
+            db.session.delete(query)
+            db.session.commit()
+            loggers['database'].debug(
+                'Removed a phrase from the database:\n'
+                f'     Phrase ID: {phrase_id}'
+            )
+            return True
+        except Exception:
+            loggers['database'].exception(
+                'Failed to remove a phrase from the database:\n'
+                f'     ID: {phrase_id}\n'
+                'Error details:'
+            )
 
-    @ classmethod
+    @classmethod
     def update(cls, data):
-        phrase = cls.query.filter(cls.id == data['id']).one()
-        phrase.cmd = data['cmd']
-        phrase.name = data['name']
-        phrase.phrase = data['phrase']
-        db.session.commit()
-        return True
+        try:
+            phrase = cls.query.filter(cls.id == data['id']).one()
+            phrase.cmd = data['cmd']
+            phrase.name = data['name']
+            phrase.phrase_text = data['phrase_text']
+            phrase.phrase_html = data['phrase_html']
+            db.session.commit()
+            loggers['database'].info(
+                'Updated a phrase from the database:\n'
+                f'     ID: {phrase.phrase_id}\n'
+                f'     Name: {phrase.name}\n'
+                f'     Command: {phrase.cmd}\n')
+            loggers['database'].debug(
+                'Updated a phrase from the database:\n'
+                f'     ID: {phrase.phrase_id}\n'
+                f'     Phrase Text: {phrase.phrase_text}\n'
+                f'     Phrase HTML: {phrase.phrase_html}\n'
+                f'     Command: {phrase.cmd}\n')
+            return True
+        except Exception:
+            loggers['database'].exception(
+                'Failed to update a phrase from the database:\n'
+                f'     ID: {data["phrase_id"]}\n'
+                f'     Name: {data["name"]}\n'
+                f'     Command: {data["cmd"]}\n'
+                f'     Phrase Text: {data["phrase_text"]}\n'
+                f'     Phrase HTML: {data["phrase_html"]}\n'
+                'Error details:'
+            )
 
 
 class Folders(db.Model, Common):
@@ -210,71 +293,132 @@ class Folders(db.Model, Common):
     def __repr__(self):
         return '<Folder %r>' % self.folder_id
 
-    @ classmethod
+    @classmethod
     def query_id(cls, folder_id):
-        return cls.query.filter(cls.folder_id == folder_id).one()
+        try:
+            folder = cls.query.filter(cls.folder_id == folder_id).one()
+            loggers['database'].debug('Retrieved folder from the database:\n'
+                                      f'     Folder ID: {folder.folder_id}\n'
+                                      f'     Name: {folder.name}'
+                                      )
+            return folder
+        except Exception:
+            loggers['database'].exception(
+                'Failed to retrieve a folder from the database:\n'
+                f'     Folder ID: {folder_id}\n'
+                'Error details:'
+            )
 
-    @ classmethod
-    def remove(cls, id):
-        def processing(folder_id):
-            sub_folders = cls.query.filter(
-                cls.parent_folder_id == folder_id).all()
-            for folder in sub_folders:
-                processing(folder.folder_id)
-                phrases_affected = Phrases.get_phrases4folder(folder.folder_id)
-                for phrase_folder in phrases_affected:
-                    phrase = Phrases.query_id(phrase_folder.phrase_id)
-                    db.session.delete(phrase)
-                    db.session.delete(phrase_folder)
-                    db.session.commit()
-            folder = cls.query_id(folder_id)
-            db.session.delete(folder)
+    @classmethod
+    def __remove(cls, folder_id):
+        try:
+            query = cls.query.filter(cls.folder_id == folder_id).one()
+            db.session.delete(query)
             db.session.commit()
-        processing(id)
-        return True
+            loggers['database'].debug(
+                'Removed a folder from the database:\n'
+                f'     Folder ID: {folder_id}'
+            )
+        except Exception:
+            loggers['database'].exception(
+                'Failed to remove a folder from the database:\n'
+                f'     Folder ID: {folder_id}\n'
+                'Error details:'
+            )
 
-    @ classmethod
+    @classmethod
+    def remove(cls, id):
+        try:
+            loggers['database'].debug(
+                'Attempting to remove folder and contents from the database:\n'
+                f'     Folder ID: {id}'
+            )
+
+            def processing(folder_id):
+                sub_folders = cls.query.filter(
+                    cls.parent_folder_id == folder_id).all()
+                for folder in sub_folders:
+                    processing(folder.folder_id)
+                    phrases_affected = Phrases.get_phrases4folder(
+                        folder.folder_id)
+                    for phrase_folder in phrases_affected:
+                        Phrases.remove(phrase_folder.phrase_id)
+                        cls.__remove(phrase_folder.phrase_id)
+                        db.session.commit()
+                cls.__remove(folder_id)
+                db.session.commit()
+            processing(id)
+            loggers['database'].debug(
+                'Successfully removed folder and contents:\n'
+                f'     Folder ID: {id}'
+            )
+        except Exception:
+            loggers['database'].exception(
+                'Failed to remove folder and contents from the database:\n'
+                f'     ID: {id}\n'
+                'Error details:'
+            )
+
+    @classmethod
     def get_folders(cls):
-        query = cls.query.order_by(cls.parent_folder_id, cls.name).all()
-        folders_raw = {}
-        for i in query:
-            if i.parent_folder_id not in folders_raw.keys():
-                folders_raw[i.parent_folder_id] = []
-            folders_raw[i.parent_folder_id].append(
-                {"id": i.folder_id, "name": i.name})
-        return folders_raw
-
-    @ classmethod
-    def get_folders_select_html(cls, exclude=False):
-        if exclude:
-            query = cls.query.filter(
-                cls.parent_folder_id != exclude, cls.folder_id != exclude)\
-                .order_by(cls.parent_folder_id, cls.name).all()
-        else:
+        try:
             query = cls.query.order_by(cls.parent_folder_id, cls.name).all()
-        folders_raw = {}
-        for i in query:
-            if i.parent_folder_id not in folders_raw.keys():
-                folders_raw[i.parent_folder_id] = []
-            folders_raw[i.parent_folder_id].append(
-                {"id": i.folder_id, "name": i.name})
-        folders = [{"id": 0, "name": "Root Folder"}]
+            folders_raw = {}
+            for i in query:
+                if i.parent_folder_id not in folders_raw.keys():
+                    folders_raw[i.parent_folder_id] = []
+                folders_raw[i.parent_folder_id].append(
+                    {"id": i.folder_id, "name": i.name})
+            loggers['database'].debug(
+                'Successfully retrieved folders from the database'
+            )
+            return folders_raw
+        except Exception:
+            loggers['database'].exception(
+                'Failed to retrieved folders from the database. Error details:'
+            )
 
-        def processing(folder_data, depth=0):
-            for item in folder_data:
-                folder = {"id": item["id"], "name": item["name"].rjust(
-                    len(item["name"])+depth*2, "-")}
-                folders.append(folder)
-                if item['id'] in folders_raw.keys():
-                    depth += 1
-                    depth = processing(folders_raw[item['id']], depth)
-            return depth - 1
+    @classmethod
+    def get_folders_select_html(cls, exclude=False):
+        try:
+            if exclude:
+                query = cls.query.filter(
+                    cls.parent_folder_id != exclude, cls.folder_id != exclude)\
+                    .order_by(cls.parent_folder_id, cls.name).all()
+            else:
+                query = cls.query.order_by(
+                    cls.parent_folder_id, cls.name).all()
+            folders_raw = {}
+            for i in query:
+                if i.parent_folder_id not in folders_raw.keys():
+                    folders_raw[i.parent_folder_id] = []
+                folders_raw[i.parent_folder_id].append(
+                    {"id": i.folder_id, "name": i.name})
+            folders = [{"id": 0, "name": "Root Folder"}]
 
-        if len(folders_raw) > 0:
-            processing(folders_raw[0])
-        html_list = []
-        for folder in folders:
-            html_list.append('<option value=' + str(folder['id']) + ">")
-            html_list.append(folder['name'])
-            html_list.append('</option>')
-        return ''.join(html_list)
+            def processing(folder_data, depth=0):
+                for item in folder_data:
+                    folder = {"id": item["id"], "name": item["name"].rjust(
+                        len(item["name"])+depth*2, "-")}
+                    folders.append(folder)
+                    if item['id'] in folders_raw.keys():
+                        depth += 1
+                        depth = processing(folders_raw[item['id']], depth)
+                return depth - 1
+
+            if len(folders_raw) > 0:
+                processing(folders_raw[0])
+            html_list = []
+            for folder in folders:
+                html_list.append('<option value=' + str(folder['id']) + ">")
+                html_list.append(folder['name'])
+                html_list.append('</option>')
+            loggers['database'].debug(
+                'Successfully retrieved folders from the database as HTML.'
+            )
+            return ''.join(html_list)
+        except Exception:
+            loggers['database'].exception(
+                'Failed to retrieved folders from the database as HTML.'
+                ' Error details:'
+            )

@@ -18,7 +18,7 @@ def create_app():
     loggers['backend'].debug('...Loading Keyboard and Mouse event handlers...')
     kb = KB(app, Phrases)
     loggers['backend'].debug('...Loading Keyboard and Mouse event handlers'
-                             'COMPLETE')
+                             ' COMPLETE')
 
     loggers['backend'].debug('...Loading Flask routes...')
 

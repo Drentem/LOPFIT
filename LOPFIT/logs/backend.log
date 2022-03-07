@@ -1,11 +1,23 @@
-[06-Mar-22 16:41:07][INFO] ========== NEW INSTANCE STARTED ==========
-[06-Mar-22 16:41:07][ERROR] Exception occurred
-Traceback (most recent call last):
-  File "D:\_me\Documents\GitHub\LOPFIT\misc\logs.py", line 28, in <module>
-    c = a / b
-ZeroDivisionError: division by zero
-[06-Mar-22 16:41:07][ERROR] Exception occurred
-Traceback (most recent call last):
-  File "D:\_me\Documents\GitHub\LOPFIT\misc\logs.py", line 32, in <module>
-    c = a / b
-ZeroDivisionError: division by zero
+[07-Mar-22 11:03:48][INFO] ========== NEW INSTANCE STARTED ==========
+[07-Mar-22 11:03:48][DEBUG] Starting Flask...
+[07-Mar-22 11:03:48][DEBUG] ...Configuring Database...
+[07-Mar-22 11:03:48][DEBUG] ...Configuring Database COMPLETE
+[07-Mar-22 11:03:48][DEBUG] ...Loading Keyboard and Mouse event handlers...
+[07-Mar-22 11:03:48][DEBUG] ...Loading Keyboard and Mouse event handlers COMPLETE
+[07-Mar-22 11:03:48][DEBUG] ...Loading Flask routes...
+[07-Mar-22 11:03:48][DEBUG] ...Loading Flask routes COMPLETE
+[07-Mar-22 11:03:48][DEBUG] Flask startup COMPLETE
+[07-Mar-22 11:03:48][DEBUG] Initializing app...
+[07-Mar-22 11:03:48][DEBUG] Adding icon to system tray...
+[07-Mar-22 11:03:48][DEBUG] Adding icon to system tray COMPLETE
+[07-Mar-22 11:03:48][DEBUG] Initializing app COMPLETE
+[07-Mar-22 11:04:10][DEBUG] Frontend Loaded
+[07-Mar-22 11:04:10][INFO] Received GUI focus change:
+     GUI active.
+[07-Mar-22 11:04:10][INFO] Received GUI focus change:
+     GUI active.
+[07-Mar-22 11:04:10][DEBUG] List of folders and phrases retrieved
+[07-Mar-22 11:04:10][INFO] Received GUI focus change:
+     GUI not active.
+[07-Mar-22 11:04:13][INFO] Received GUI focus change:
+     GUI active.
