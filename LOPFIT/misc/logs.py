@@ -27,10 +27,6 @@ logs = {
         "path": os.path.join(log_root, "backend.log"),
         "level": logging.DEBUG
     },
-    "systemtray":  {
-        "path": os.path.join(log_root, "systemtray.log"),
-        "level": logging.DEBUG
-    },
     "database":  {
         "path": os.path.join(log_root, "database.log"),
         "level": logging.DEBUG
