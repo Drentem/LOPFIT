@@ -58,6 +58,7 @@ class KB(object):
     def __execute(self):
         with self.app.app_context():
             phrase = self.phrases.check_cmd(''.join(self.phrase_cmd))
+            print(phrase)
         if phrase:
             clearing = []
             for i in range(len(self.phrase_cmd)+1):
@@ -87,6 +88,7 @@ class KB(object):
                 else:
                     self.phrase_cmd.append(event.name)
                 print(self.phrase_cmd)
+            sleep(0.05)
 
     def __Mouse_Thread(self):
         t = threading.current_thread()
@@ -95,6 +97,7 @@ class KB(object):
                 while getattr(t, "exit", False):
                     if isinstance(event, M_Events.Click):
                         self.__reset()
+            sleep(0.05)
 
     def __reset(self):
         keyboard.unhook_all()

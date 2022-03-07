@@ -5,14 +5,12 @@ import os
 import webbrowser
 
 
-def create_icon(root_path):
+def create_icon(root_path, STOP):
     def __open_LOPFIT():
         webbrowser.open('http://localhost:5050', new=2)
 
     def __tray_Exit():
-        url = 'http://localhost:5050/shutdown'
-        data = {'are_you_sure': True}
-        requests.post(url, json=data)
+        STOP()
         icon.stop()
 
     image = Image.open(

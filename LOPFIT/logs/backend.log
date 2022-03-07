@@ -1,0 +1,11 @@
+[06-Mar-22 16:41:07][INFO] ========== NEW INSTANCE STARTED ==========
+[06-Mar-22 16:41:07][ERROR] Exception occurred
+Traceback (most recent call last):
+  File "D:\_me\Documents\GitHub\LOPFIT\misc\logs.py", line 28, in <module>
+    c = a / b
+ZeroDivisionError: division by zero
+[06-Mar-22 16:41:07][ERROR] Exception occurred
+Traceback (most recent call last):
+  File "D:\_me\Documents\GitHub\LOPFIT\misc\logs.py", line 32, in <module>
+    c = a / b
+ZeroDivisionError: division by zero
