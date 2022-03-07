@@ -10,13 +10,14 @@ commands = {
 
 class Clipboard:
     def __init__(self):
-        self.temp_clipboard = {}
+        self.temp_clipboard = False
 
     def __storeUserClipboard(self):
         self.temp_clipboard = pasteall()
 
     def __restoreUserClipboard(self):
-        copy(**self.temp_clipboard)
+        kwargs = self.temp_clipboard
+        copy(**kwargs)
         self.temp_clipboard = None
         self.temp_clipboard = {}
 

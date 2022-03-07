@@ -1,11 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 from LOPFIT.DB import Phrases, Folders, Settings, db
-from LOPFIT.keysHandler import KB
+from LOPFIT.inputHandler import Inputs
 from LOPFIT.misc.logs import loggers
 
 
 def create_app():
-    loggers['backend'].debug('Starting Flask...')
+    loggers['backend'].info('Starting Flask...')
     app = Flask(__name__)
     loggers['backend'].debug('...Configuring Database...')
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -16,7 +16,7 @@ def create_app():
         Settings.init()
     loggers['backend'].debug('...Configuring Database COMPLETE')
     loggers['backend'].debug('...Loading Keyboard and Mouse event handlers...')
-    kb = KB(app, Phrases)
+    kb = Inputs(app, Phrases)
     loggers['backend'].debug('...Loading Keyboard and Mouse event handlers'
                              ' COMPLETE')
 
@@ -132,7 +132,7 @@ def create_app():
                 f'   Parent Folder ID: {old_folder} => {phrase.folder_id}')
             loggers['backend'].debug(
                 'Phrase updated:\n'
-                f'   Phrase ID: {phrase.id}\n'
+                f'   Phrase ID: {phrase.phrase_id}\n'
                 f'   Old Text:\n\n{old_text}\n\n'
                 f'   New Text:\n\n{phrase.phrase_text}\n\n'
                 f'   Old HTML:\n\n{old_html}\n'
@@ -161,7 +161,7 @@ def create_app():
                 f'   Parent Folder ID: {phrase.folder_id}')
             loggers['backend'].debug(
                 'Phrase updated:\n'
-                f'   Phrase ID: {phrase.id}\n'
+                f'   Phrase ID: {phrase.phrase_id}\n'
                 f'   Text:\n\n{phrase.phrase_text}\n\n'
                 f'   HTML:\n\n{phrase.phrase_html}\n\n'
             )
@@ -192,10 +192,10 @@ def create_app():
         kb.guiStatus(data['focus'])
         if data['focus']:
             loggers['backend'].info(
-                'Received GUI focus change:\n     GUI not active.')
+                'Received GUI focus change: Active')
         else:
             loggers['backend'].info(
-                'Received GUI focus change:\n     GUI active.')
+                'Received GUI focus change: Inactive')
         return {"focus": data['focus']}
 
     # @ app.route('/shutdown', methods=['POST'])
@@ -208,5 +208,5 @@ def create_app():
     #         return False
 
     loggers['backend'].debug('...Loading Flask routes COMPLETE')
-    loggers['backend'].debug('Flask startup COMPLETE')
+    loggers['backend'].info('Flask startup COMPLETE')
     return app
