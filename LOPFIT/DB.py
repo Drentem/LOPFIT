@@ -1,4 +1,5 @@
 from LOPFIT.ext import db
+from LOPFIT.misc.logs import loggers
 
 
 class Common():
@@ -24,22 +25,59 @@ class Settings(db.Model, Common):
     sqlite_autoincrement = True
 
     @classmethod
-    def query_setting(cls, setting):
-        return cls.query.filter(cls.setting == setting).one().value
-
-    @classmethod
     def init(cls):
-        if not cls.query.filter(cls.setting == "execution_key").first():
-            cls.add(Settings(
-                setting="execution_key",
-                value=0
-            ))
+        try:
+            loggers['database'].info('Initilizing database...')
+            if not cls.query.filter(cls.setting == "execution_key").first():
+                setting = "execution_key",
+                value = 0
+                cls.add(Settings(
+                    setting=setting,
+                    value=value
+                ))
+                loggers['database'].debug('Adding initial setting:'
+                                          f'     Setting: {setting}\n'
+                                          f'     Value: {value}'
+                                          )
+            loggers['database'].info('Initilizing database COMPLETE')
+        except Exception as e:
+            loggers['database'].exception(
+                'Failed to initilize the database. Error details:'
+            )
 
-    @classmethod
+    @ classmethod
+    def query_setting(cls, setting):
+        try:
+            value = cls.query.filter(cls.setting == setting).one().value
+            loggers['database'].debug('Retrieved setting from database:\n'
+                                      f'     Setting: {setting}\n'
+                                      f'     Value: {value}'
+                                      )
+            return value
+        except Exception as e:
+            loggers['database'].exception(
+                'Failed to retrieve setting from database:\n'
+                f'     Setting: {setting}\n'
+                'Error details:'
+            )
+
+    @ classmethod
     def update(cls, setting, value):
-        query = cls.query.filter(cls.setting == setting).one()
-        query.value = value
-        db.session.commit()
+        try:
+            query = cls.query.filter(cls.setting == setting).one()
+            query.value = value
+            db.session.commit()
+            loggers['database'].debug('Updated setting in database:\n'
+                                      f'     Setting: {setting}\n'
+                                      f'     Value: {value}'
+                                      )
+        except Exception as e:
+            loggers['database'].exception(
+                'Failed to update setting in database:\n'
+                f'     Setting: {setting}\n'
+                f'     Value: {value}\n'
+                'Error details:'
+            )
 
 
 class Phrases(db.Model, Common):
@@ -55,11 +93,24 @@ class Phrases(db.Model, Common):
     def __repr__(self):
         return '<Phrase %r>' % self.phrase_id
 
-    @classmethod
+    @ classmethod
     def query_id(cls, phrase_id):
-        return cls.query.filter(cls.phrase_id == phrase_id).one()
+        try:
+            phrase = cls.query.filter(cls.phrase_id == phrase_id).one()
+            loggers['database'].debug('Retrieved phrase from the database:\n'
+                                      f'     Phrase ID: {phrase.phrase_id}\n'
+                                      f'     Name: {phrase.name}'
+                                      f'     Command: {phrase.cmd}'
+                                      )
+            return phrase
+        except Exception as e:
+            loggers['database'].exception(
+                'Failed to retrieve a phrase from the database:\n'
+                f'     Phrase ID: {phrase_id}\n'
+                'Error details:'
+            )
 
-    @classmethod
+    @ classmethod
     def get_phrases(cls):
         query = cls.query.order_by(cls.folder_id, cls.name).all()
         phrases_raw = {}

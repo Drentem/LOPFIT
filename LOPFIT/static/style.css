@@ -123,8 +123,8 @@ body {
   padding: 0px;
 }
 #Phrases {
-  min-width: 10%;
-  max-width: 25%;
+  min-width: 300px;
+  max-width: 400px;
   border-Right: 1px solid var(--main-text);
   flex-grow: 1;
   resize: none;

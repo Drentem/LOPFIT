@@ -30,14 +30,6 @@ class Clipboard:
 
 
 class Window:
-    def check_secure():
-        input = check_output(commands['secure_input']).decode()
-        secure_input_enabled = re.search('kCGSSessionSecureInputPID', input)
-        if secure_input_enabled:
-            return True
-        else:
-            return False
-
     def get():
         # TODO: This will be used for getting the window to var. (Macros)
         test = NSWorkspace
