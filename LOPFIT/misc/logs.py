@@ -11,12 +11,8 @@ import os
 root_path = os.path.dirname(os.path.abspath(__file__))
 log_root = os.path.join(root_path, "..", "logs")
 logs = {
-    "keyboard": {
-        "path": os.path.join(log_root, "keyboard.log"),
-        "level": logging.DEBUG
-    },
-    "mouse":  {
-        "path": os.path.join(log_root, "mouse.log"),
+    "inputHandler": {
+        "path": os.path.join(log_root, "inputHandler.log"),
         "level": logging.DEBUG
     },
     "gui":  {
@@ -25,11 +21,11 @@ logs = {
     },
     "backend":  {
         "path": os.path.join(log_root, "backend.log"),
-        "level": logging.DEBUG
+        "level": logging.INFO
     },
     "database":  {
         "path": os.path.join(log_root, "database.log"),
-        "level": logging.DEBUG
+        "level": logging.INFO
     }
 }
 formatter = logging.Formatter('[%(asctime)s][%(levelname)s] %(message)s',

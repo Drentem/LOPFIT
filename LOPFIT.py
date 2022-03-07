@@ -8,15 +8,14 @@ from LOPFIT.misc.systemTray import create_icon  # noqa: E402
 from LOPFIT.misc.logs import loggers  # noqa: E402
 
 
-app = create_app()
-
 if __name__ == "__main__":
-    loggers['backend'].debug("Initializing app...")
+    loggers['backend'].info("Initializing app...")
+    app = create_app()
     # app.run(host="localhost", port=5050, debug=True)  # For debuging
     http_server = WSGIServer(('localhost', 5050), app)
     loggers['backend'].debug("Adding icon to system tray...")
     icon = create_icon(root_path, http_server.stop)
     icon.run_detached()
     loggers['backend'].debug("Adding icon to system tray COMPLETE")
-    loggers['backend'].debug("Initializing app COMPLETE")
+    loggers['backend'].info("Initializing app COMPLETE")
     http_server.serve_forever()

@@ -13,7 +13,7 @@
       - [x] Paste phrase to current keyboard location (Possibly via CTRL-V)
       - [x] Replace temp var back to clipboard (as if we never borrowed it)
       - [ ] Listener needs to detect and ignore password boxes
-  - [x] MacOS
+  - [x] MacOS (Testing complete)
 - [x] Integrate with GUI/DB
 
 #### Frontend (GUI)
@@ -26,7 +26,7 @@
 #### Bugs needing worked
 - [ ] Knowing when the form is dirty after saving
   - Could just consider it dirty after ANY change regardless if undo returned it back to normal
-- [ ] Need to fix major latency issues
+- [x] Need to fix major latency issues
   - Too much input silently spiking CPU?
 - [x] HTML pasting isn't working as expected. Not sure the issue here.
   - This was a simple issue of bad MacOS Clipboard management in the backend. Oops.

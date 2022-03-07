@@ -11,7 +11,7 @@ class Common():
             loggers['database'].debug(
                 f'Retrieved all {object_type}s from the database.')
             return query
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 f'Failed to add {object_type} to the database. Error details:'
             )
@@ -24,7 +24,7 @@ class Common():
             return True
             loggers['database'].debug(
                 f'Added {object_type} to the database.')
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 f'Failed to add {object_type} to the database. Error details:'
             )
@@ -57,7 +57,7 @@ class Settings(db.Model, Common):
                                           f'     Value: {value}'
                                           )
             loggers['database'].info('Initilizing database COMPLETE')
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to initilize the database. Error details:'
             )
@@ -71,7 +71,7 @@ class Settings(db.Model, Common):
                                       f'     Value: {value}'
                                       )
             return value
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to retrieve setting from database:\n'
                 f'     Setting: {setting}\n'
@@ -88,7 +88,7 @@ class Settings(db.Model, Common):
                                       f'     Setting: {setting}\n'
                                       f'     Value: {value}'
                                       )
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to update setting in database:\n'
                 f'     Setting: {setting}\n'
@@ -120,7 +120,7 @@ class Phrases(db.Model, Common):
                                       f'     Command: {phrase.cmd}'
                                       )
             return phrase
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to retrieve a phrase from the database:\n'
                 f'     Phrase ID: {phrase_id}\n'
@@ -140,7 +140,7 @@ class Phrases(db.Model, Common):
             loggers['database'].debug(
                 'Phrase information gathered from the database')
             return phrases_raw
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to retrieve phrases from the database')
 
@@ -182,7 +182,7 @@ class Phrases(db.Model, Common):
             loggers['database'].debug('Converted folders and phrases'
                                       ' from the database to HTML format')
             return ''.join(html_list)
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to convert folders and phrases'
                 ' from the database to HTML format')
@@ -195,7 +195,7 @@ class Phrases(db.Model, Common):
                 f'     Phrase ID: {phrase_id}'
             )
             return cls.query.filter(cls.phrase_id == phrase_id).one().phrase
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to retrieve a phrase from the database:\n'
                 f'     Phrase ID: {phrase_id}\n'
@@ -224,7 +224,7 @@ class Phrases(db.Model, Common):
                     f'     Command: {cmd}'
                 )
                 return False
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to retrieve a phrase from the database:\n'
                 f'     Command: {cmd}\n'
@@ -243,7 +243,7 @@ class Phrases(db.Model, Common):
                 f'     Phrase ID: {phrase_id}'
             )
             return True
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to remove a phrase from the database:\n'
                 f'     ID: {phrase_id}\n'
@@ -271,7 +271,7 @@ class Phrases(db.Model, Common):
                 f'     Phrase HTML: {phrase.phrase_html}\n'
                 f'     Command: {phrase.cmd}\n')
             return True
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to update a phrase from the database:\n'
                 f'     ID: {data["phrase_id"]}\n'
@@ -302,7 +302,7 @@ class Folders(db.Model, Common):
                                       f'     Name: {folder.name}'
                                       )
             return folder
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to retrieve a folder from the database:\n'
                 f'     Folder ID: {folder_id}\n'
@@ -319,7 +319,7 @@ class Folders(db.Model, Common):
                 'Removed a folder from the database:\n'
                 f'     Folder ID: {folder_id}'
             )
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to remove a folder from the database:\n'
                 f'     Folder ID: {folder_id}\n'
@@ -352,7 +352,7 @@ class Folders(db.Model, Common):
                 'Successfully removed folder and contents:\n'
                 f'     Folder ID: {id}'
             )
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to remove folder and contents from the database:\n'
                 f'     ID: {id}\n'
@@ -373,7 +373,7 @@ class Folders(db.Model, Common):
                 'Successfully retrieved folders from the database'
             )
             return folders_raw
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to retrieved folders from the database. Error details:'
             )
@@ -417,7 +417,7 @@ class Folders(db.Model, Common):
                 'Successfully retrieved folders from the database as HTML.'
             )
             return ''.join(html_list)
-        except Exception:
+        except Exception as e:  # noqa: F841
             loggers['database'].exception(
                 'Failed to retrieved folders from the database as HTML.'
                 ' Error details:'
