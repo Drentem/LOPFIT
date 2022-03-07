@@ -1,6 +1,4 @@
-
-from pystray._darwin import Icon
-from pystray import Menu, MenuItem
+from pystray import Icon, Menu, MenuItem
 from PIL import Image
 from LOPFIT.misc.logs import loggers
 import os
