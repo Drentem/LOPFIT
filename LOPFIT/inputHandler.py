@@ -1,9 +1,8 @@
 # This module is shared code between OSs
 from LOPFIT.misc.logs import loggers
 import keyboard
-from keyboard import KeyboardEvent, send
+from keyboard import send
 from pynput.mouse import Listener
-from flask import _app_ctx_stack
 from time import sleep
 import threading
 from sys import platform

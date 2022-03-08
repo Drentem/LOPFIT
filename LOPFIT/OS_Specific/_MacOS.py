@@ -1,7 +1,7 @@
 from AppKit import NSWorkspace
 from richxerox import copy, pasteall
-from subprocess import check_output
-import re
+# from subprocess import check_output
+# import re
 
 commands = {
     'secure_input': ['ioreg', '-alw', '0']

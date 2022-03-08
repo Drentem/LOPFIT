@@ -21,7 +21,7 @@ logs = {
     },
     "backend":  {
         "path": os.path.join(log_root, "backend.log"),
-        "level": logging.INFO
+        "level": logging.DEBUG
     },
     "database":  {
         "path": os.path.join(log_root, "database.log"),
