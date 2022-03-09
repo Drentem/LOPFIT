@@ -24,7 +24,7 @@ function savePhrase(id) {
     name: p_name.value,
     cmd: p_trigger.value,
     phrase_html: p_text.innerHTML,
-    phrase_text: p_text.innerText.replace(/\n\n/gm,'\n')
+    phrase_text: p_text.innerText.replace(/\n\n/gm,'\n').replace(/\n\n/gm,'\n')
   });
   send2API(phrase_API+id.toString(), "POST", data);
   var dirty = document.querySelectorAll('[dirty="yes"]');
@@ -427,12 +427,14 @@ function unsavedChangesDialog (modalConatiner){
   unsavedChanges_close.onclick = function() {
     modalConatiner.style.display = "none";
     modalConatiner.innerHTML = "";
+    var id = document.getElementById('Save').getAttribute('phrase_id');
+    updateSelected('phrase-'+id)
   }
   var unsavedChanges_no = document.getElementById('unsavedChanges_Dialog-no');
   unsavedChanges_no.onclick = function() {
     modalConatiner.style.display = "none";
     modalConatiner.innerHTML = "";
-    var id = document.getElementById('Save').getAttribute('phrase_id');
+    var id = document.querySelectorAll('[selected="yes"]')[0].id.split('-')[1];
     loadPhrase(id)
   }
   var unsavedChanges_yes = document.getElementById('unsavedChanges_Dialog-yes');

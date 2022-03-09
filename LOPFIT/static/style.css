@@ -73,6 +73,10 @@ body {
   height: 160px;
   width: 300px;
 }
+#unsavedChanges_Dialog {
+  height: 130px;
+  width: 300px;
+}
 #Move_Dialog {
   height: 135px;
   width: 300px;
@@ -89,7 +93,8 @@ body {
   height: 145px;
   width: 300px;
 }
-#Remove_Dialog-no {
+#Remove_Dialog-no,
+#unsavedChanges_Dialog-no {
   float: left;
   font-weight: bold;
   margin-top: 10px;
@@ -98,7 +103,8 @@ body {
 #Move_Dialog-ok,
 #New_Phrase_Dialog-ok,
 #Settings_Dialog-ok,
-#Remove_Dialog-yes {
+#Remove_Dialog-yes,
+#unsavedChanges_Dialog-yes {
   float: right;
   font-weight: bold;
   margin-top: 10px;
