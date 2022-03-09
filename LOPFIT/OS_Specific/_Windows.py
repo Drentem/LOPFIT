@@ -1,19 +1,34 @@
 # import win32gui
 import klembord
+from collections import OrderedDict
 
 
 class Clipboard:
     def __init__(self):
-        self.temp_clipboard = {}
+        self.temp_clipboard = OrderedDict()
         klembord.init()
 
     def __storeUserClipboard(self):
-        self.temp_clipboard = klembord.get()
+        pre_content = OrderedDict()
+        for i in klembord.get(['TARGETS'])['TARGETS']:
+            try:
+                pre_content[i] = klembord.get([i])
+            except Exception:
+                pass
+
+        for i in pre_content:
+            print(pre_content[i][i])
+            try:
+                test = {i: pre_content[i][i]}
+                klembord.set(test)
+                self.temp_clipboard[i] = pre_content[i][i]
+            except Exception:
+                pass
 
     def __restoreUserClipboard(self):
-        klembord.get(self.temp_clipboard)
-        self.temp_clipboard = None
-        self.temp_clipboard = {}
+        self.temp_clipboard.clear()
+        klembord.set(self.temp_clipboard)
+        self.temp_clipboard.clear()
 
     def borrow(self, html="", text=""):
         self.__storeUserClipboard()
@@ -22,7 +37,6 @@ class Clipboard:
 
     def giveBack(self):
         self.__restoreUserClipboard()
-
 
 # class Window:
 #     hwnd = win32gui.GetForegroundWindow()
