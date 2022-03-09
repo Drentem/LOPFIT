@@ -26,10 +26,11 @@ log = loggers['inputHandler']
 
 class Inputs(object):
     # Required for integrating with Flask and the database
-    def __init__(self, app=None, Phrases=None):
+    def __init__(self, app=None, Phrases=None, Settings=None):
         # Flask related variables
         self.app = app
         self.phrases = Phrases
+        self.settings = Settings
 
         # OS related variables
         log.debug('Registering clipboard handler...')
@@ -49,11 +50,12 @@ class Inputs(object):
         # Data gathering variable
         self.phrase_cmd = []
         if app is not None:
-            self.init_app(app, Phrases)
+            self.init_app(app, Phrases, Settings)
         self.__start()
 
-    def init_app(self, app, Phrases):
+    def init_app(self, app, Phrases, Settings):
         self.phrases = Phrases
+        self.settings = Settings
         log.info('Registered Phrase database access')
 
     # Code
@@ -115,7 +117,7 @@ class Inputs(object):
             return True
         else:
             self.__reset("Command doesn't exist")
-            return True
+            return False
 
     def __Keyboard_Thread(self):
         log.info('Keyboard thread started.')
@@ -128,24 +130,31 @@ class Inputs(object):
         while not getattr(t, "pause", False):
             event = keyboard.read_event()
             log.debug('Checking if the event is "Key Down".')
-            if event.event_type == keyboard.KEY_DOWN:
+            if event.event_type == keyboard.KEY_DOWN and event.name:
                 log.debug('Event is "Key Down".')
                 log.debug('Checking if event is'
                           ' a terminating key...')
                 if event.name in terminate_keys:
-                    log.debug('Event is terminating key.')
-                    try:
-                        log.info(
-                            'Attempting to execute the command...')
-                        if self.__execute():
+                    with self.app.app_context():
+                        exec_key = self.settings.query_setting(
+                            'execution_key')
+                    if exec_key == event.name:
+                        log.debug('Event is terminating key.')
+                        try:
                             log.info(
-                                'Command executed.')
-                        else:
-                            log.info(
-                                'Not a command')
-                    except Exception as e:  # noqa: F841
-                        log.exception(
-                            'Failed to attepmt execution. Error details:')
+                                'Attempting to execute the command...')
+                            if self.__execute():
+                                log.info(
+                                    'Command executed.')
+                            else:
+                                log.info(
+                                    'Not a command')
+                        except Exception as e:  # noqa: F841
+                            log.exception(
+                                'Failed to attempt execution. Error details:')
+                    else:
+                        self.__reset('Invalid execution key used.'
+                                     ' Clearing in case the cursor moved.')
                 elif event.name == backspace:
                     log.debug(
                         'Attempting to remove a character from the command...')
@@ -221,23 +230,30 @@ class Inputs(object):
                 'Pausing keyboard thread while in the GUI')
             self.__reset('GUI Access')
         else:
-            try:
+            if self.settings.query_setting('execution_key') != "disabled":
+                try:
+                    log.info(
+                        'Resuming mouse thread after the GUI lost focus...')
+                    self.mouse_thread.pause = False
+                    log.info(
+                        'Mouse thread restarted.')
+                except Exception as e:  # noqa: F841
+                    log.critical(
+                        'Failed to resume the mouse thread. Error details:',
+                        exc_info=True)
+                try:
+                    log.info(
+                        'Resuming keyboard thread after the GUI lost focus...')
+                    self.keyboard_thread = threading.Thread(
+                        target=self.__Keyboard_Thread)
+                    self.keyboard_thread.daemon = True
+                    self.keyboard_thread.start()
+                    log.info(
+                        'Keyboard thread resumed.')
+                except Exception as e:  # noqa: F841
+                    log.critical(
+                        'Failed to resume the keyboard thread. Error details:',
+                        exc_info=True)
+            else:
                 log.info(
-                    'Resuming mouse thread after the GUI lost focus...')
-                self.mouse_thread.pause = False
-                log.info(
-                    'Mouse thread restarted.')
-            except Exception as e:  # noqa: F841
-                log.critical(
-                    'Failed to resume the mouse thread. Error details:',
-                    exc_inc=True)
-            try:
-                log.info(
-                    'Resuming keyboard thread after the GUI lost focus...')
-                self.keyboard_thread.pause = False
-                log.info(
-                    'Keyboard thread resumed.')
-            except Exception as e:  # noqa: F841
-                log.critical(
-                    'Failed to resume the keyboard thread. Error details:',
-                    exc_inc=True)
+                    'LOPFIT input disabled. Not accepting input.')

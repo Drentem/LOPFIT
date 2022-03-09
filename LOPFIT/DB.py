@@ -233,6 +233,29 @@ class Phrases(db.Model, Common):
             return False
 
     @classmethod
+    def cmd_free(cls, cmd):
+        try:
+            query = cls.query.filter(cls.cmd == cmd).first()
+            if query:
+                loggers['database'].debug('Phrase command exists:\n'
+                                          f'     Command: {cmd}'
+                                          )
+                return False
+            else:
+                loggers['database'].debug(
+                    'Phrase command does not exist in the database:\n'
+                    f'     Command: {cmd}'
+                )
+                return True
+        except Exception as e:  # noqa: F841
+            loggers['database'].exception(
+                'Failed to to check command in the database:\n'
+                f'     Command: {cmd}\n'
+                'Error details:'
+            )
+            return False
+
+    @classmethod
     def remove(cls, phrase_id):
         try:
             query = cls.query.filter(cls.phrase_id == phrase_id).one()
