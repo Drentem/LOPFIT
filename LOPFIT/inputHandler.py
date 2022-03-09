@@ -127,8 +127,7 @@ class Inputs(object):
                 'Failed to retrieve current thread information')
         while not getattr(t, "pause", False):
             event = keyboard.read_event()
-            log.debug('Checking if the event is "Key Down":\n'
-                      f'     Event Info: {event}')
+            log.debug('Checking if the event is "Key Down".')
             if event.event_type == keyboard.KEY_DOWN:
                 log.debug('Event is "Key Down".')
                 log.debug('Checking if event is'
@@ -175,8 +174,6 @@ class Inputs(object):
                           event.name == 'right shift'):
                     self.__reset('Invalid key entered.'
                                  ' Clearing in case the cursor moved.')
-                log.debug('Currently stored command:'
-                          f' {"".join(self.phrase_cmd)}')
 
     def __Mouse_Thread(self):
         t = threading.current_thread()

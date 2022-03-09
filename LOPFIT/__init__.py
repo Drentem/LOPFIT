@@ -48,7 +48,7 @@ def create_app():
             loggers['backend'].debug('List of folders retrieved')
         return jsonify(ret)
 
-    @app.route('/folder/<ID>', methods=["POST", "DELETE"])
+    @app.route('/folder/<ID>', methods=["GET", "POST", "DELETE"])
     def folder(ID):
         data = request.get_json()
         if request.method == 'POST':
@@ -72,6 +72,10 @@ def create_app():
             ret = {"folder_removed": True}
             loggers['backend'].info('Folder removed:\n'
                                     f'Folder ID: {ID}')
+        elif request.method == 'GET':
+            folder_html = Folders.get_folders_select_html(ID)
+            ret = {"folders_HTML": folder_html}
+            loggers['backend'].debug('List of folders retrieved')
         return jsonify(ret)
 
     @app.route('/phrase/', methods=["GET", "POST"])
