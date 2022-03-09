@@ -281,7 +281,7 @@ ul[role="tree"] li span {width:100%}
 .ql-editor {
   background-color: var(--editor-bg);
   color: var(--editor-text);
-  height: calc(100vh - 174px) !important;
+  height: calc(100vh - 184px) !important;
   overflow-y: auto;
 }
 #Phrase_Text {
