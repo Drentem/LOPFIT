@@ -70,6 +70,13 @@ function resetFolderDropdown (element,exclude=false) {
 function resetPhraseList () {
   var phraseList = document.getElementById('Phrase_List');
   phraseList_HTML = JSON.parse(send2API(phrase_API, "GET"));
+  var treeitems = document.querySelectorAll('[role="treeitem"]');
+  var open_folders = [];
+  for (var i = 0; i < treeitems.length; i++) {
+    if (treeitems[i].getAttribute('aria-expanded') == 'true'){
+      open_folders.push(treeitems[i].id)
+    }
+  }
   phraseList.innerHTML = "";
   phraseList.innerHTML = phraseList_HTML['phraseList_HTML'];
   // set Remove button status
@@ -88,6 +95,9 @@ function resetPhraseList () {
   }
   var treeitems = document.querySelectorAll('[role="treeitem"]');
   for (var i = 0; i < treeitems.length; i++) {
+    if (open_folders.includes(treeitems[i].id)){
+      treeitems[i].setAttribute('aria-expanded','true');
+    }
     treeitems[i].addEventListener('click', function (event) {
       var treeitem = event.currentTarget;
       var label = treeitem.getAttribute('aria-label');
@@ -288,7 +298,7 @@ function editDialog (modalConatiner){
   modalConatiner.innerHTML = edit_HTML;
   var selected = document.querySelectorAll('[selected="yes"]')[0];
   var folder_name = document.getElementById('folder_name');
-  folder_name.value = selected.innerText
+  folder_name.value = selected.childNodes[0].innerText
   resetFolderDropdown('edit-pfolder', selected.id.split('-')[1]);
   modalConatiner.style.display = "block";
   // Handle Dialog Elements
@@ -302,8 +312,9 @@ function editDialog (modalConatiner){
     var folder_name = document.getElementById('folder_name').value;
     var pfolder = document.getElementById('edit-pfolder').value;
     modalConatiner.style.display = "none";
+    var id = selected.id.split('-')[1]
     data = JSON.stringify({
-      folder_id: selected.id.split('-')[1],
+      folder_id: id,
       name: folder_name,
       parent_folder_id: pfolder
     })

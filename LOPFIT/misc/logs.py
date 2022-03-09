@@ -13,7 +13,7 @@ log_root = os.path.join(root_path, "..", "logs")
 logs = {
     "inputHandler": {
         "path": os.path.join(log_root, "inputHandler.log"),
-        "level": logging.DEBUG
+        "level": logging.INFO
     },
     "gui":  {
         "path": os.path.join(log_root, "gui.log"),
