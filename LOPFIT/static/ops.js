@@ -350,10 +350,12 @@ function removeDialog (modalConatiner){
   document.getElementById('Remove_Dialog-yes').onclick = function() {
     modalConatiner.style.display = "none";
     if (info[0] == "folder") {
+      var id = info[1];
       data = JSON.stringify({id: info[1]})
       send2API(folder_API+id.toString(), "DELETE", data);
       resetPhraseList();
     } else if (info[0] == "phrase") {
+      var id = info[1];
       var p_name = document.getElementById('pname');
       var p_trigger = document.getElementById('ptrigger');
       var p_text = document.getElementById('Phrase_Text').childNodes[0];
@@ -363,6 +365,7 @@ function removeDialog (modalConatiner){
       p_text.innerText = "";
       phrase.style.display="none";
       send2API(phrase_API+id.toString(), "DELETE");
+      document.getElementById('Save').setAttribute('phrase_id','hidden')
       resetPhraseList();
     }
     modalConatiner.innerHTML = "";
@@ -481,7 +484,11 @@ window.addEventListener('load', function () {
   // Change handlers
   p_name.onchange = function() {phrase_name.setAttribute('dirty','yes')}
   p_trigger.onchange = function() {phrase_trigger.setAttribute('dirty','yes')}
-
+  p_trigger.onkeypress = function(e) {
+    if (e.keyCode == 32) {
+       e.preventDefault();
+    }
+  }
   quill.on('text-change', function(delta, oldDelta, source) {
     var p_text = document.getElementById('Phrase_Text');
     console.log(quill_undo_save_point)
@@ -516,3 +523,10 @@ window.addEventListener('focus', function(){
   data = JSON.stringify({focus:true});
   send2API(focus_API, "POST", data, true);
 });
+document.addEventListener("keydown", function(e) {
+  if ((window.navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey)  && e.keyCode == 83) {
+    e.preventDefault();
+    var id = document.getElementById('Save').getAttribute('phrase_id');
+    if (id != 'hidden') savePhrase(id);
+  }
+}, false);
