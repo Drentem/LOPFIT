@@ -17,7 +17,6 @@ class Clipboard:
                 pass
 
         for i in pre_content:
-            print(pre_content[i][i])
             try:
                 test = {i: pre_content[i][i]}
                 klembord.set(test)

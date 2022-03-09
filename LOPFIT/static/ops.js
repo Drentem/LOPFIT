@@ -24,7 +24,7 @@ function savePhrase(id) {
     name: p_name.value,
     cmd: p_trigger.value,
     phrase_html: p_text.innerHTML,
-    phrase_text: p_text.innerText
+    phrase_text: p_text.innerText.replace('\n\n','\n')
   });
   send2API(phrase_API+id.toString(), "POST", data);
   var dirty = document.querySelectorAll('[dirty="yes"]');
