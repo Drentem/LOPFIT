@@ -16,7 +16,7 @@ def create_app():
         Settings.init()
     loggers['backend'].debug('...Configuring Database COMPLETE')
     loggers['backend'].debug('...Loading Keyboard and Mouse event handlers...')
-    kb = Inputs(app, Phrases)
+    kb = Inputs(app, Phrases, Settings)
     loggers['backend'].debug('...Loading Keyboard and Mouse event handlers'
                              ' COMPLETE')
 
@@ -82,17 +82,22 @@ def create_app():
     def phrase():
         data = request.get_json()
         if request.method == 'POST':
-            while Phrases.check_cmd(data['cmd']):
-                data['cmd'] += "0"
+            num = ''
+            if not Phrases.cmd_free(data['cmd']):
+                num = 0
+                while not Phrases.cmd_free(data['cmd']+str(num)):
+                    num += 1
             phrase = Phrases(
                 name=data['name'],
-                cmd=data['cmd'],
+                cmd=data['cmd']+str(num),
                 folder_id=data['folder_id']
             )
             Phrases.add(phrase)
+            db.session.flush()
+            print(phrase.__dict__)
             ret = {
                 "phrase_added": True,
-                "cmd": data['cmd'],
+                "cmd": phrase.cmd,
                 "phrase_id": phrase.phrase_id}
             loggers['backend'].info(
                 'New phrase added:\n'
