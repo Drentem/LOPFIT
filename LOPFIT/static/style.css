@@ -198,7 +198,7 @@ ul[role="tree"] {
   margin: 0;
   padding: 0;
   list-style: none;
-  width: calc(100% - 30px);
+  width: calc(100% - 8px);
 }
 ul[role="tree"] li {width: 100%;}
 ul[role="tree"] li span {width:100%}
@@ -234,6 +234,7 @@ ul[role="tree"] li span {width:100%}
   width: 9em;
   margin: 0;
   padding: 0.1em;
+  padding-right: 0px;
   display: block;
 }
 [role="treeitem"]:focus {outline: 0;}
@@ -243,8 +244,9 @@ ul[role="tree"] li span {width:100%}
   background-color: #eee;
 }
 [role="treeitem"].hover,
-[role="treeitem"] span:hover {background-color: #ddd;}
-[selected="yes"] {background-color: #ddd;}
+[role="treeitem"] span:hover {background-color: #fff;}
+[selected="yes"] > span {background-color: #ddd;}
+[selected="yes"].doc {background-color: #ddd;}
 
 /*--- Phrase Editor ---*/
 #Phrase_Header,

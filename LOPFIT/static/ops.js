@@ -150,7 +150,8 @@ function checkPhrase(id, override=false) {
       var modal = document.getElementById('ModalConatiner');
       unsavedChangesDialog(modal);
     } else {
-      savePhrase(id);
+      var save_id = document.getElementById('Save').getAttribute('phrase_id');
+      savePhrase(save_id);
       loadPhrase(id);
     }
   } else {loadPhrase(id)}
@@ -454,7 +455,7 @@ function unsavedChangesDialog (modalConatiner){
   unsavedChanges_yes.onclick = function() {
     modalConatiner.style.display = "none";
     modalConatiner.innerHTML = "";
-    var id = document.getElementById('Save').getAttribute('phrase_id');
+    var id = document.querySelectorAll('[selected="yes"]')[0].id.split('-')[1];
     checkPhrase(id, true)
   }
 }
