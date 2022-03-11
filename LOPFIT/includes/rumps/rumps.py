@@ -6,33 +6,35 @@
 # License: BSD, see LICENSE for details.
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+from .compat import text_type, string_types, iteritems
+from .utils import ListDict
+import weakref
+import traceback
+import sys
+import pickle
+import os
+import inspect
+from PyObjCTools import AppHelper
+from AppKit import NSApplication, NSStatusBar, NSMenu, NSMenuItem, NSAlert, NSTextField, NSSecureTextField, NSImage, NSSlider, NSSize
+from Foundation import (NSDate, NSTimer, NSRunLoop, NSDefaultRunLoopMode, NSSearchPathForDirectoriesInDomains,
+                        NSMakeRect, NSLog, NSObject, NSMutableDictionary, NSString)
+import AppKit
+import Foundation
 _NOTIFICATIONS = True
 
 # For compatibility with pyinstaller
 # See: http://stackoverflow.com/questions/21058889/pyinstaller-not-finding-pyobjc-library-macos-python
-import Foundation
-import AppKit
 
 try:
     from Foundation import NSUserNotification, NSUserNotificationCenter
 except ImportError:
     _NOTIFICATIONS = False
 
-from Foundation import (NSDate, NSTimer, NSRunLoop, NSDefaultRunLoopMode, NSSearchPathForDirectoriesInDomains,
-                        NSMakeRect, NSLog, NSObject, NSMutableDictionary, NSString)
-from AppKit import NSApplication, NSStatusBar, NSMenu, NSMenuItem, NSAlert, NSTextField, NSSecureTextField, NSImage, NSSlider, NSSize
-from PyObjCTools import AppHelper
 
-import inspect
-import os
-import pickle
-import sys
-import traceback
-import weakref
-
-from collections import Mapping, Iterable
-from .utils import ListDict
-from .compat import text_type, string_types, iteritems
+try:
+    from collections import Mapping, Iterable
+except:
+    from collections.abc import Mapping, Iterable
 
 _TIMERS = weakref.WeakKeyDictionary()
 separator = object()
@@ -47,6 +49,8 @@ def debug_mode(choice):
     else:
         def _log(*_):
             pass
+
+
 debug_mode(False)
 
 
@@ -206,7 +210,8 @@ def notification(title, subtitle, message, data=None, sound=True, action_button=
 
 def application_support(name):
     """Return the application support folder path for the given `name`, creating it if it doesn't exist."""
-    app_support_path = os.path.join(NSSearchPathForDirectoriesInDomains(14, 1, 1).objectAtIndex_(0), name)
+    app_support_path = os.path.join(
+        NSSearchPathForDirectoriesInDomains(14, 1, 1).objectAtIndex_(0), name)
     if not os.path.isdir(app_support_path):
         os.mkdir(app_support_path)
     return app_support_path
@@ -251,17 +256,19 @@ def _nsimage_from_file(filename, dimensions=None, template=None):
 def _require_string(*objs):
     for obj in objs:
         if not isinstance(obj, string_types):
-            raise TypeError('a string is required but given {0}, a {1}'.format(obj, type(obj).__name__))
+            raise TypeError('a string is required but given {0}, a {1}'.format(
+                obj, type(obj).__name__))
 
 
 def _require_string_or_none(*objs):
     for obj in objs:
         if not(obj is None or isinstance(obj, string_types)):
-            raise TypeError('a string or None is required but given {0}, a {1}'.format(obj, type(obj).__name__))
+            raise TypeError('a string or None is required but given {0}, a {1}'.format(
+                obj, type(obj).__name__))
 
 
 # Decorators and helper function serving to register functions for dealing with interaction and events
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def timer(interval):
     """Decorator for registering a function as a callback in a new thread. The function will be repeatedly called every
     `interval` seconds. This decorator accomplishes the same thing as creating a :class:`rumps.Timer` object by using
@@ -395,7 +402,7 @@ def _call_as_function_or_method(func, event):
         if method.__func__ is func:
             return method(event)
     return func(event)
-#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 
 class Menu(ListDict):
@@ -493,7 +500,7 @@ class Menu(ListDict):
         parse_menu(kwargs, self, 0)
 
     # ListDict insertion methods
-    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def insert_after(self, existing_key, menuitem):
         """Insert a :class:`rumps.MenuItem` in the menu after the `existing_key`.
@@ -523,7 +530,7 @@ class Menu(ListDict):
         self._menu.insertItem_atIndex_(menuitem._menuitem, index + pos)
 
     # Processing MenuItems
-    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def _process_new_menuitem(self, key, value):
         if value is None or value is separator:
@@ -664,7 +671,8 @@ class MenuItem(Menu):
         :param dimensions: a sequence of numbers whose length is two.
         :param template: a boolean who defines the template mode for the icon.
         """
-        new_icon = _nsimage_from_file(icon_path, dimensions, template) if icon_path is not None else None
+        new_icon = _nsimage_from_file(
+            icon_path, dimensions, template) if icon_path is not None else None
         self._icon = icon_path
         self._menuitem.setImage_(new_icon)
 
@@ -783,6 +791,7 @@ class SliderMenuItem(object):
 
 class SeparatorMenuItem(object):
     """Visual separator between :class:`rumps.MenuItem` objects in the application menu."""
+
     def __init__(self):
         self._menuitem = NSMenuItem.separatorItem()
 
@@ -799,6 +808,7 @@ class Timer(object):
                      :class:`rumps.Timer` object as its only parameter.
     :param interval: The time in seconds to wait before calling the `callback` function.
     """
+
     def __init__(self, callback, interval):
         self.set_callback(callback)
         self._interval = interval
@@ -1099,7 +1109,8 @@ class NSApp(NSObject):
         else:
             _log('WARNING: the default quit button is disabled. To exit the application gracefully, another button '
                  'should have a callback of quit_application or call it indirectly.')
-        self.nsstatusitem.setMenu_(mainmenu._menu)  # mainmenu of our status bar spot (_menu attribute is NSMenu)
+        # mainmenu of our status bar spot (_menu attribute is NSMenu)
+        self.nsstatusitem.setMenu_(mainmenu._menu)
 
     def setStatusBarTitle(self):
         self.nsstatusitem.setTitle_(self._app['_title'])
@@ -1163,7 +1174,7 @@ class App(object):
         self._application_support = application_support(self._name)
 
     # Properties
-    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     @property
     def name(self):
@@ -1206,7 +1217,8 @@ class App(object):
 
     @icon.setter
     def icon(self, icon_path):
-        new_icon = _nsimage_from_file(icon_path, template=self._template) if icon_path is not None else None
+        new_icon = _nsimage_from_file(
+            icon_path, template=self._template) if icon_path is not None else None
         self._icon = icon_path
         self._icon_nsimage = new_icon
         try:
@@ -1261,7 +1273,7 @@ class App(object):
             self._quit_button = MenuItem(quit_text)
 
     # Open files in application support folder
-    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def open(self, *args):
         """Open a file within the application support folder for this application.
@@ -1285,7 +1297,7 @@ class App(object):
         return open(os.path.join(self._application_support, args[0]), *args[1:])
 
     # Run the application
-    #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     def run(self, **options):
         """Performs various setup tasks including creating the underlying Objective-C application, starting the timers,
@@ -1316,7 +1328,8 @@ class App(object):
             else:
                 notification_center.setDelegate_(self._nsapp)
 
-        setattr(App, '*app_instance', self)  # class level ref to running instance (for passing self to App subclasses)
+        # class level ref to running instance (for passing self to App subclasses)
+        setattr(App, '*app_instance', self)
         t = b = None
         for t in getattr(timer, '*timers', []):
             t.start()
