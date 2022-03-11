@@ -47,7 +47,7 @@ class Settings(db.Model, Common):
             loggers['database'].info('Initilizing database...')
             if not cls.query.filter(cls.setting == "execution_key").first():
                 setting = "execution_key",
-                value = 0
+                value = "space"
                 cls.add(Settings(
                     setting=setting,
                     value=value
