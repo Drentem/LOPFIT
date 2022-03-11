@@ -179,6 +179,12 @@ class Phrases(db.Model, Common):
 
             if len(folders_raw) > 0:
                 processing(0)
+            else:
+                for phrase in phrases_raw[0]:
+                    html_list.append(
+                        "<li role='treeitem' class='doc' id='phrase-" +
+                        str(phrase['id']) + "'>" +
+                        phrase['name'] + '</li>')
             loggers['database'].debug('Converted folders and phrases'
                                       ' from the database to HTML format')
             return ''.join(html_list)
