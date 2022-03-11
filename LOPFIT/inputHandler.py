@@ -244,10 +244,7 @@ class Inputs(object):
                 try:
                     log.info(
                         'Resuming keyboard thread after the GUI lost focus...')
-                    self.keyboard_thread = threading.Thread(
-                        target=self.__Keyboard_Thread)
-                    self.keyboard_thread.daemon = True
-                    self.keyboard_thread.start()
+                    self.keyboard_thread.pause = False
                     log.info(
                         'Keyboard thread resumed.')
                 except Exception as e:  # noqa: F841
