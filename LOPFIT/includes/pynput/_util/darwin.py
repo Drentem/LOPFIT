@@ -199,13 +199,31 @@ class ListenerMixin(object):
                 self._mark_ready()
                 return
 
-            loop_source = Quartz.CFMachPortCreateRunLoopSource(
-                None, tap, 0)
-            self._loop = Quartz.CFRunLoopGetCurrent()
-
-            Quartz.CFRunLoopAddSource(
-                self._loop, loop_source, Quartz.kCFRunLoopDefaultMode)
-            Quartz.CGEventTapEnable(tap, True)
+            loop_source = None
+            while not loop_source:
+                try:
+                    loop_source = Quartz.CFMachPortCreateRunLoopSource(
+                        None, tap, 0)
+                except Exception:
+                    pass
+            while not self._loop:
+                try:
+                    self._loop = Quartz.CFRunLoopGetCurrent()
+                except Exception:
+                    pass
+            while True:
+                try:
+                    Quartz.CFRunLoopAddSource(
+                        self._loop, loop_source, Quartz.kCFRunLoopDefaultMode)
+                    break
+                except Exception:
+                    pass
+            while True:
+                try:
+                    Quartz.CGEventTapEnable(tap, True)
+                    break
+                except Exception:
+                    pass
 
             self._mark_ready()
 

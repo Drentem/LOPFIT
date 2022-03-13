@@ -372,13 +372,38 @@ class KeyEventListener(object):
             Quartz.CGEventMaskBit(Quartz.kCGEventFlagsChanged),
             self.handler,
             None)
-        loopsource = Quartz.CFMachPortCreateRunLoopSource(None, self.tap, 0)
-        loop = Quartz.CFRunLoopGetCurrent()
-        Quartz.CFRunLoopAddSource(loop, loopsource, Quartz.kCFRunLoopDefaultMode)
-        Quartz.CGEventTapEnable(self.tap, True)
+        loopsource = None
+        loop = None
+        while not loopsource:
+            try:
+                loopsource = Quartz.CFMachPortCreateRunLoopSource(
+                    None, self.tap, 0)
+            except Exception:
+                loopsource = None
+        while not loop:
+            try:
+                loop = Quartz.CFRunLoopGetCurrent()
+            except Exception:
+                loopsource = None
+        while True:
+            try:
+                Quartz.CFRunLoopAddSource(
+                    loop, loopsource, Quartz.kCFRunLoopDefaultMode)
+                break
+            except Exception:
+                pass
+        while True:
+            try:
+                Quartz.CGEventTapEnable(self.tap, True)
+                break
+            except Exception:
+                pass
 
         while self.listening:
-            Quartz.CFRunLoopRunInMode(Quartz.kCFRunLoopDefaultMode, 5, False)
+            try:
+                Quartz.CFRunLoopRunInMode(Quartz.kCFRunLoopDefaultMode, 5, False)
+            except Exception:
+                pass
 
     def handler(self, proxy, e_type, event, refcon):
         scan_code = Quartz.CGEventGetIntegerValueField(event, Quartz.kCGKeyboardEventKeycode)
