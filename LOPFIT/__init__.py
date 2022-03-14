@@ -97,7 +97,6 @@ def create_app():
             )
             Phrases.add(phrase)
             db.session.flush()
-            print(phrase.__dict__)
             ret = {
                 "phrase_added": True,
                 "cmd": phrase.cmd,
