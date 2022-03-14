@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify
+import logging
 from LOPFIT.DB import Phrases, Folders, Settings, db
 from LOPFIT.inputHandler import Inputs
 from LOPFIT.misc.logs import loggers
@@ -7,6 +8,8 @@ from LOPFIT.misc.logs import loggers
 def create_app():
     loggers['backend'].info('Starting Flask...')
     app = Flask(__name__)
+    log = logging.getLogger('werkzeug')
+    log.disabled = True
     loggers['backend'].debug('...Configuring Database...')
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///LOPFIT.db'
