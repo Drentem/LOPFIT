@@ -22,6 +22,21 @@ Download LOPFIT.
 
 ![System Tray Icon](LOPFIT/favicon.ico)
 
+## Information about this package
+* Reads the keyboard input and temporarily stores it in a list object
+  * Space, return, tab, and clicking will clear this list object.
+  * In MacOS, Secure Input prevents it from reading password boxes. Obviously, this is the desired affect.
+  * In Windows, there is no way to detect password boxes.
+* Attempts to borrow and return the clipboard.
+  1. Temporarily stores the contents of the clipboard in a variable before clearing it.
+  2. The phrase is loaded to the clipboard and then pasted (via ctrl-v) to the screen.
+  3. The contents of the clipboard are restored.
+* No external connections are made at all
+  * A local Flask server acts as the GUI itself.
+  * The database is a local sqlite3 file that is saved to the local computer.
+  * Pip connections to the internet are not required for setup either.
+    * As this includes all dependencies under the **includes** folder, it removes the need to reach out to the internet.
+
 ## Packages used (Thank you to the owning teams)
 ### GUI
 * Webserver: [Flask](https://palletsprojects.com/p/flask/)
