@@ -19,7 +19,9 @@ Download LOPFIT.
 	* **MacOS**
 	`python3 LOPFIT.py &`
 2. Use the Menu or System Tray icon to access LOPFIT's GUI. It will appear in your default web browser.
+
 ![System Tray Icon](LOPFIT/favicon.ico)
+
 ## Packages used (Thank you to the owning teams)
 ### GUI
 * Webserver: [Flask](https://palletsprojects.com/p/flask/)
