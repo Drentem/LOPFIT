@@ -38,6 +38,8 @@ Download LOPFIT.
     * As this includes all dependencies under the **includes** folder, it removes the need to reach out to the internet.
 
 ## Packages used (Thank you to the owning teams)
+Thank you to all those that had created packages before me. A few of the main packages I used are below.
+Please note that some of these packages utilize other packages and were not called out. However, thank you to them as well :D
 ### GUI
 * Webserver: [Flask](https://palletsprojects.com/p/flask/)
 * Icon Font: [FontAwesome](https://fontawesome.com/)
