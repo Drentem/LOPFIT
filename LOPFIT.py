@@ -2,7 +2,7 @@ import sys
 import os
 import threading
 root_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(root_path, "LOPFIT", "includes"))
+sys.path.insert(0, os.path.join(root_path, "LOPFIT", "includes"))
 from werkzeug.serving import make_server  # noqa: E402
 from LOPFIT import create_app  # noqa: E402
 from LOPFIT.misc.systemTray import create_icon  # noqa: E402
