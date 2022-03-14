@@ -38,12 +38,17 @@ class Inputs(object):
         log.debug('Clipboard handler registered.')
 
         # Keyboard and mouse event monitoring
+        self.ready = threading.Event()
         log.debug('Registering mouse thread...')
-        self.mouse_thread = threading.Thread(target=self.__Mouse_Thread)
+        self.mouse_thread = threading.Thread(
+            target=self.__Mouse_Thread,
+            args=(self.ready,))
         self.mouse_thread.daemon = True
         log.debug('Mouse thread registered.')
         log.debug('Registering keyboard thread...')
-        self.keyboard_thread = threading.Thread(target=self.__Keyboard_Thread)
+        self.keyboard_thread = threading.Thread(
+            target=self.__Keyboard_Thread,
+            args=(self.ready,))
         self.keyboard_thread.daemon = True
         log.debug('Keyboard thread registered.')
 
@@ -119,76 +124,74 @@ class Inputs(object):
             self.__reset("Command doesn't exist")
             return False
 
-    def __Keyboard_Thread(self):
+    def __Keyboard_Thread(self, ready):
         log.info('Keyboard thread started.')
-        try:
-            log.info('Getting current thread information...')
-            t = threading.current_thread()
-        except Exception as e:  # noqa: F841
-            log.exception(
-                'Failed to retrieve current thread information')
-        while not getattr(t, "pause", False):
+        while True:
             event = keyboard.read_event()
-            log.debug('Checking if the event is "Key Down".')
-            if event.event_type == keyboard.KEY_DOWN and event.name:
-                log.debug('Event is "Key Down".')
-                log.debug('Checking if event is'
-                          ' a terminating key...')
-                if event.name in terminate_keys:
-                    with self.app.app_context():
-                        exec_key = self.settings.query_setting(
-                            'execution_key')
-                    if exec_key == event.name:
-                        log.debug('Event is terminating key.')
+            if ready.is_set():
+                log.debug('Checking if the event is "Key Down".')
+                if event.event_type == keyboard.KEY_DOWN and event.name:
+                    log.debug('Event is "Key Down".')
+                    log.debug('Checking if event is'
+                              ' a terminating key...')
+                    if event.name in terminate_keys:
+                        with self.app.app_context():
+                            exec_key = self.settings.query_setting(
+                                'execution_key')
+                        if exec_key == event.name:
+                            log.debug('Event is terminating key.')
+                            try:
+                                log.info(
+                                    'Attempting to execute the command...')
+                                if self.__execute():
+                                    log.info(
+                                        'Command executed.')
+                                else:
+                                    log.info(
+                                        'Not a command')
+                            except Exception as e:  # noqa: F841
+                                log.exception(
+                                    'Failed to attempt execution.'
+                                    ' Error details:')
+                        else:
+                            self.__reset('Invalid execution key used.'
+                                         ' Clearing in case the cursor moved.')
+                    elif event.name == backspace:
+                        log.debug(
+                            'Attempting to remove a character'
+                            ' from the command...')
                         try:
-                            log.info(
-                                'Attempting to execute the command...')
-                            if self.__execute():
-                                log.info(
-                                    'Command executed.')
+                            if len(self.phrase_cmd) > 0:
+                                self.phrase_cmd.pop()
+                                log.debug(
+                                    'Successfully removed a character'
+                                    ' from the command...')
                             else:
-                                log.info(
-                                    'Not a command')
+                                log.debug(
+                                    'No character to remove'
+                                    ' from the command...')
                         except Exception as e:  # noqa: F841
                             log.exception(
-                                'Failed to attempt execution. Error details:')
-                    else:
-                        self.__reset('Invalid execution key used.'
-                                     ' Clearing in case the cursor moved.')
-                elif event.name == backspace:
-                    log.debug(
-                        'Attempting to remove a character from the command...')
-                    try:
-                        if len(self.phrase_cmd) > 0:
-                            self.phrase_cmd.pop()
-                            log.debug(
-                                'Successfully removed a character'
-                                ' from the command...')
+                                'Failed to remove a character from the'
+                                ' command. Error details:')
+                    elif len(event.name) == 1:
+                        if keyboard.is_pressed('caps lock') or \
+                                keyboard.is_pressed('shift') or \
+                                keyboard.is_pressed('right shift'):
+                            self.phrase_cmd.append(event.name.upper())
                         else:
-                            log.debug(
-                                'No character to remove from the command...')
-                    except Exception as e:  # noqa: F841
-                        log.exception(
-                            'Failed to remove a character from the command.'
-                            ' Error details:')
-                elif len(event.name) == 1:
-                    if keyboard.is_pressed('caps lock') or \
-                            keyboard.is_pressed('shift') or \
-                            keyboard.is_pressed('right shift'):
-                        self.phrase_cmd.append(event.name.upper())
-                    else:
-                        self.phrase_cmd.append(event.name)
-                elif not (event.name == 'caps lock' or
-                          event.name == 'shift' or
-                          event.name == 'right shift'):
-                    self.__reset('Invalid key entered.'
-                                 ' Clearing in case the cursor moved.')
+                            self.phrase_cmd.append(event.name)
+                    elif not (event.name == 'caps lock' or
+                              event.name == 'shift' or
+                              event.name == 'right shift'):
+                        self.__reset('Invalid key entered.'
+                                     ' Clearing in case the cursor moved.')
+            else:
+                ready.wait()
 
-    def __Mouse_Thread(self):
-        t = threading.current_thread()
-
+    def __Mouse_Thread(self, ready):
         def on_click(x, y, button, pressed):
-            if not getattr(t, "pause", False) and pressed:
+            if not ready.is_set() and pressed:
                 log.debug('Mouse clicked.')
                 log.debug(
                     'Attempting to reset stored command...')
@@ -206,6 +209,7 @@ class Inputs(object):
                   f'     Reason for reset: {reason}')
 
     def __start(self):
+        self.ready.set()
         try:
             log.info('Initilizing mouse thread...')
             self.mouse_thread.start()
@@ -223,34 +227,14 @@ class Inputs(object):
 
     def guiStatus(self, inGUI=False):
         if inGUI:
-            self.mouse_thread.pause = True
-            log.info('Pausing mouse thread while in the GUI')
-            self.keyboard_thread.pause = True
-            log.info(
-                'Pausing keyboard thread while in the GUI')
+            self.ready.clear()
+            log.info('Pausing mouse and keyboard threads while in the GUI')
             self.__reset('GUI Access')
         else:
             if self.settings.query_setting('execution_key') != "disabled":
-                try:
-                    log.info(
-                        'Resuming mouse thread after the GUI lost focus...')
-                    self.mouse_thread.pause = False
-                    log.info(
-                        'Mouse thread restarted.')
-                except Exception as e:  # noqa: F841
-                    log.critical(
-                        'Failed to resume the mouse thread. Error details:',
-                        exc_info=True)
-                try:
-                    log.info(
-                        'Resuming keyboard thread after the GUI lost focus...')
-                    self.keyboard_thread.pause = False
-                    log.info(
-                        'Keyboard thread resumed.')
-                except Exception as e:  # noqa: F841
-                    log.critical(
-                        'Failed to resume the keyboard thread. Error details:',
-                        exc_info=True)
-            else:
+                self.ready.set()
                 log.info(
-                    'LOPFIT input disabled. Not accepting input.')
+                    'Resuming mouse and keyboard threads after'
+                    ' the GUI lost focus.')
+            else:
+                log.info('LOPFIT input disabled. Not accepting input.')
