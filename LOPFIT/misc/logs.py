@@ -13,19 +13,19 @@ log_root = os.path.join(root_path, "..", "logs")
 logs = {
     "inputHandler": {
         "path": os.path.join(log_root, "inputHandler.log"),
-        "level": logging.INFO
+        "level": logging.WARNING
     },
     "gui":  {
         "path": os.path.join(log_root, "gui.log"),
-        "level": logging.DEBUG
+        "level": logging.WARNING
     },
     "backend":  {
         "path": os.path.join(log_root, "backend.log"),
-        "level": logging.DEBUG
+        "level": logging.WARNING
     },
     "database":  {
         "path": os.path.join(log_root, "database.log"),
-        "level": logging.INFO
+        "level": logging.WARNING
     }
 }
 formatter = logging.Formatter('[%(asctime)s][%(levelname)s] %(message)s',
