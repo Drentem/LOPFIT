@@ -9,9 +9,9 @@
 * Python >= 3.9
 ## Setup
 Download LOPFIT.
-	* Either download and extract the code as a ZIP file or pull it down via git
+* Either download and extract the code as a ZIP file or pull it down via git
 	`git repo clone Drentem/LOPFIT`
-	 * **Note:** LOPFIT does not require anything to be installed by pip. They are included already in the includes folder. If you do run into a dependency issue, please create an ***Issue*** to have it resolved.
+* **Note:** LOPFIT does not require anything to be installed by pip. They are included already in the includes folder. If you do run into a dependency issue, please create an ***Issue*** to have it resolved.
 ## How to use
 1. Run LOPFIT from the base folder.
 	* **Windows**
