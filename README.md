@@ -18,4 +18,4 @@ Download LOPFIT.
 	`pythonw.exe LOPFIT.py`
 	* **MacOS**
 	`python3 LOPFIT.py &`
-2. Use the Menu or System Tray icon (![System Tray Icon](LOPFIT/favicon.ico))to access LOPFIT's GUI. It will appear in your default web browser.
+2. Use the Menu or System Tray icon ![System Tray Icon](LOPFIT/favicon.ico =24x24)to access LOPFIT's GUI. It will appear in your default web browser.
