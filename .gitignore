@@ -2,3 +2,6 @@ LOPFIT.db
 __pycache__
 .DS_Store
 LOPFIT/logs/*.log
+*.pyo
+build/
+dist/

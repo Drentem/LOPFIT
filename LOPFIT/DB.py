@@ -1,5 +1,5 @@
 from LOPFIT.ext import db
-from LOPFIT.misc.logs import loggers
+from LOPFIT.logs import loggers
 
 
 class Common():

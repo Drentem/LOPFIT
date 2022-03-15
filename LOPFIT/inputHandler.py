@@ -1,5 +1,5 @@
 # This module is shared code between OSs
-from LOPFIT.misc.logs import loggers
+from LOPFIT.logs import loggers
 import keyboard
 from keyboard import send
 from pynput.mouse import Listener
@@ -7,17 +7,18 @@ from time import sleep
 import threading
 from sys import platform
 
-if platform == "linux" or platform == "linux2":  # Linux
-    print("This OS is not supported.")
-    exit()
-elif platform in ['Mac', 'darwin', 'os2', 'os2emx']:  # MacOS
-    from LOPFIT.OS_Specific._MacOS import Clipboard  # , Window  (Macros)
+if platform in ['Mac', 'darwin', 'os2', 'os2emx']:  # MacOS
+    from ._MacOS import Clipboard  # , Window  (Macros)
     paste_keys = "cmd+v"
     backspace = "delete"
 elif platform in ['Windows', 'win32', 'cygwin']:  # Windows
-    from LOPFIT.OS_Specific._Windows import Clipboard  # , Window  (Macros)
+    from ._Windows import Clipboard  # , Window  (Macros)
     paste_keys = "ctrl+v"
     backspace = "backspace"
+else:
+    print("This OS is not supported.")
+    exit()
+
 
 terminate_keys = ['enter', 'space', 'tab']
 

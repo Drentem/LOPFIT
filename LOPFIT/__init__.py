@@ -2,7 +2,23 @@ from flask import Flask, render_template, request, jsonify
 import logging
 from LOPFIT.DB import Phrases, Folders, Settings, db
 from LOPFIT.inputHandler import Inputs
-from LOPFIT.misc.logs import loggers
+from LOPFIT.logs import loggers
+import os
+from sys import platform
+
+if platform in ['Mac', 'darwin', 'os2', 'os2emx']:  # MacOS
+    db_path = os.path.join(
+        os.path.expanduser('~/Documents/'),
+        'LOPFIT_DATA')
+elif platform in ['Windows', 'win32', 'cygwin']:  # Windows
+    db_path = os.path.join(
+        os.path.expanduser('~/AppData/local'),
+        'LOPFIT_DATA')
+else:
+    print("This OS is not supported.")
+    exit()
+os.makedirs(db_path, exist_ok=True)
+db_path = os.path.join(db_path, "LOPFIT.db")
 
 
 def create_app():
@@ -12,7 +28,7 @@ def create_app():
     log.disabled = True
     loggers['backend'].debug('...Configuring Database...')
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///LOPFIT.db'
+    app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///' + db_path
     db.init_app(app)
     with app.app_context():
         db.create_all()
