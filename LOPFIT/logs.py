@@ -1,5 +1,6 @@
 import logging
 import os
+from sys import platform
 
 # logging.debug('This is a debug message')
 # logging.info('This is an info message')
@@ -8,8 +9,20 @@ import os
 # logging.exception('This is an error message with exception details')
 # logging.critical('This is a critical message')
 
-root_path = os.path.dirname(os.path.abspath(__file__))
-log_root = os.path.join(root_path, "..", "logs")
+if platform in ['Mac', 'darwin', 'os2', 'os2emx']:  # MacOS
+    log_root = os.path.join(
+        os.path.expanduser('~/Documents/'),
+        'LOPFIT_DATA')
+elif platform in ['Windows', 'win32', 'cygwin']:  # Windows
+    log_root = os.path.join(
+        os.path.expanduser('~/AppData/local'),
+        'LOPFIT_DATA')
+else:
+    print("This OS is not supported.")
+    exit()
+
+os.makedirs(log_root, exist_ok=True)
+
 logs = {
     "inputHandler": {
         "path": os.path.join(log_root, "inputHandler.log"),

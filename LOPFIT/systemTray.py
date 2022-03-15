@@ -1,11 +1,12 @@
-from LOPFIT.misc.logs import loggers
+from LOPFIT.logs import loggers
 import webbrowser
 from sys import platform
 import os
 
 
 def create_icon(root_path, STOP):
-    icon_path = os.path.join(os.path.join(root_path, "LOPFIT", "favicon.ico"))
+    icon_path = os.path.join(os.path.join(root_path, "LOPFIT",
+                                          'static', "favicon.ico"))
     loggers['backend'].info('Initializing system tray icon...')
     if platform == "linux" or platform == "linux2":  # Linux
         print("This OS is not supported.")
