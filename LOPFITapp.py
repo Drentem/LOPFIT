@@ -1,6 +1,8 @@
-import os
 import threading
-root_path = os.path.dirname(os.path.abspath(__file__))
+from os.path import abspath, dirname, join
+from sys.path import insert
+root_path = dirname(abspath(__file__))
+insert(0, join(root_path, 'includes'))
 from werkzeug.serving import make_server  # noqa: E402
 from LOPFIT import create_app  # noqa: E402
 from LOPFIT.systemTray import create_icon  # noqa: E402
