@@ -9,7 +9,7 @@ pipeline {
             }
             steps {
                 sh 'python -m py_compile **.py'
-                stash(name: 'compiled-results', includes: '**.py*') 
+                stash(name: 'compiled-results', includes: '**.py*')
             }
         }
     }
