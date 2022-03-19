@@ -10,15 +10,17 @@ pipeline {
             stash(name: 'compiled-results', includes: '**.py*')
           }
         }
-        node {
-          stage('SCM') {
-            git 'https://github.com/foo/bar.git'
-          }
-          stage('SonarQube analysis') {
-            def scannerHome = tool 'SonarScanner 4.0';
+        stage('SonarQube') {
+          steps {
             withSonarQubeEnv('SonarQube') {
-              sh "${scannerHome}/bin/sonar-scanner"
+              sh "./sonar-scanner"
             }
+          }
+        }
+        stage('SonarQube analysis') {
+          def scannerHome = tool 'SonarScanner 4.0';
+          withSonarQubeEnv('SonarQube') {
+            sh "${scannerHome}/bin/sonar-scanner"
           }
         }
       }
