@@ -12,24 +12,15 @@ pipeline {
         }
         node {
           stage('SCM') {
-            git 'https://github.com/Drentem/LOPFIT.git'
+            git 'https://github.com/foo/bar.git'
           }
-          stage('SonarQube') {
+          stage('SonarQube analysis') {
             def scannerHome = tool 'SonarScanner 4.0';
-            withSonarQubeEnv('SonarQube') { // If you have configured more than one global server connection, you can specify its name
+            withSonarQubeEnv('SonarQube') {
               sh "${scannerHome}/bin/sonar-scanner"
             }
           }
         }
-/*
-        stage('SonarQube') {
-          steps {
-            withSonarQubeEnv('SonarQube') {
-              sh ""
-            }
-          }
-        }
-*/
       }
     }
     stage('Quality Gate') {
