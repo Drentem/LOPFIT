@@ -11,7 +11,9 @@ pipeline {
           }
         }
         stage('SonarQube') {
-          SonarQube.execute(this, bparams)
+          steps {
+            SonarQube.execute(this, bparams)
+          }
         }
       }
     }
