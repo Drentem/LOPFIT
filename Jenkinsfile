@@ -39,5 +39,22 @@ pipeline {
       }
     }
 
+    stage('Package') {
+      parallel {
+        stage('macOS') {
+          steps {
+            echo 'Cannot Compile. Need a Mac'
+          }
+        }
+
+        stage('Windows') {
+          steps {
+            echo 'Need Windows agent'
+          }
+        }
+
+      }
+    }
+
   }
 }
