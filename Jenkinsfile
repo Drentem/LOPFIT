@@ -7,7 +7,7 @@ pipeline {
           agent {docker {image 'python:3-alpine'}}
           steps {
             sh 'python -m compileall .'
-            stash(name: 'compiled-results', includes: '**')
+            stash(name: 'compiled-results', includes: '**/*.py*')
           }
         }
         stage('SonarQube') {
