@@ -11,7 +11,7 @@ pipeline {
 
           }
           steps {
-            sh 'python3 -m compileall'
+            sh 'python3 -m compileall .'
             stash(name: 'compiled-results', includes: '**/*.py*')
           }
         }
