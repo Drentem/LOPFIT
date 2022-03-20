@@ -6,7 +6,6 @@ pipeline {
         stage('Compile') {
           agent {
             docker {image 'python:2-alpine'}
-            label 'Local Agent 1'
           }
           steps {
             sh 'compileall'
@@ -14,6 +13,7 @@ pipeline {
           }
         }
         stage('SonarQube') {
+          agent{ label 'Local Agent 1'}
           steps{
             script{
               scannerHome = tool 'SonarQube 4.7';
