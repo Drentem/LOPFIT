@@ -20,7 +20,7 @@ pipeline {
         stage('SonarQube') {
           agent {
             node {
-              label 'Built-in Node'
+              label 'Built-In Node'
             }
 
           }
