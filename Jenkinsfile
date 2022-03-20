@@ -6,7 +6,7 @@ pipeline {
         stage('Compile') {
           agent {docker {image 'python:3-alpine'}}
           steps {
-            sh 'python -m compileall'
+            sh 'compileall'
             stash(name: 'compiled-results', includes: '**/*.py*')
           }
         }
