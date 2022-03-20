@@ -11,10 +11,9 @@ pipeline {
 
           }
           steps {
-            sh 'compileall'
-            stash(name: 'compiled-results', includes: '**/*.py*')
             timeout(time: 60) {
-              error 'Compile timeout'
+              sh 'compileall'
+              stash(name: 'compiled-results', includes: '**/*.py*')
             }
 
           }
