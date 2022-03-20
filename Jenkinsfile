@@ -13,7 +13,6 @@ pipeline {
           }
         }
         stage('SonarQube') {
-          agent{ label 'Local Agent 1'}
           steps{
             script{
               scannerHome = tool 'SonarQube 4.7';
