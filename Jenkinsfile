@@ -7,7 +7,7 @@ pipeline {
           agent {docker {image 'python:3-alpine'}}
           steps {
             script {
-              System.setProperty("org.jenkinsci.plugins.durabletask.BourneShellScript.LAUNCH_DIAGNOSTICS", "true");
+              System.setProperty("Dorg.jenkinsci.plugins.durabletask.BourneShellScript.LAUNCH_DIAGNOSTICS", "true");
             }
             sh 'echo Hello World'
           }
