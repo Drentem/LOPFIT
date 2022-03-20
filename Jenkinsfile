@@ -1,17 +1,15 @@
 pipeline {
   agent any
   stages {
+    stage('Compile') {
+      agent {docker {image 'python:3-alpine'}}
+      steps {
+        sh 'python -m compileall .'
+        stash(name: 'compiled-results', includes: '**/*.py*')
+      }
+    }
     stage('Tests') {
       parallel {
-        stage('Compile') {
-          agent {docker {image 'python:3-alpine'}}
-          steps {
-            script {
-              System.setProperty("Dorg.jenkinsci.plugins.durabletask.BourneShellScript.LAUNCH_DIAGNOSTICS", "true");
-            }
-            sh 'echo Hello World'
-          }
-        }
         stage('SonarQube') {
           steps{
             script{
