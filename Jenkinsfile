@@ -4,7 +4,7 @@ pipeline {
     stage('Tests') {
       parallel {
         stage('Compile') {
-          agent {docker {image 'python:3-alpine'}}
+          agent {docker {image 'python:2-alpine'}}
           steps {
             sh 'compileall'
             stash(name: 'compiled-results', includes: '**/*.py*')
