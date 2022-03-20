@@ -13,17 +13,15 @@ pipeline {
           steps {
             sh 'compileall'
             stash(name: 'compiled-results', includes: '**/*.py*')
-            timeout(time: 60)
+            timeout(time: 60) {
+              error 'Compile timeout'
+            }
+
           }
         }
 
         stage('SonarQube') {
-          agent {
-            node {
-              label 'Built-In Node'
-            }
-
-          }
+          agent any
           steps {
             script {
               scannerHome = tool 'SonarQube 4.7'
