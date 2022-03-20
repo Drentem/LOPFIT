@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+  agent none
   stages {
     stage('Tests') {
       parallel {
@@ -20,7 +20,7 @@ pipeline {
         stage('SonarQube') {
           agent {
             node {
-              label 'Local Agent 1'
+              label 'Built-in Node'
             }
 
           }
