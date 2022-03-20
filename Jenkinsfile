@@ -5,17 +5,14 @@ pipeline {
       parallel {
         stage('Compile') {
           agent {
-            docker {
-              image 'python:3-alpine'
+            node {
+              label 'Local Agent 1'
             }
 
           }
           steps {
-            timeout(time: 60) {
-              sh 'compileall'
-              stash(name: 'compiled-results', includes: '**/*.py*')
-            }
-
+            sh 'python3 -m compileall'
+            stash(name: 'compiled-results', includes: '**/*.py*')
           }
         }
 
